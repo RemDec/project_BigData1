@@ -9,8 +9,14 @@ people <- read.csv(file="../../data/Dtrain.csv", header=TRUE)
 test <- read.csv(file="../../data/Xtest1.csv", header=TRUE)
 
 # Pre processing
-people <- people[which(people$default != 'yes'), ]
-people$default <- droplevels(people$default)
+purge_data <- function(data, vars=c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'y')){
+  data$default <- NULL 
+  contain_unknown <- apply(data, 1, function(r) any(r == "unknown"))
+  restricted <- droplevels(data[!contain_unknown, ])
+  return(restricted[, vars])
+}
+
+people <- purge_data(people)
 
 pred_ok <- people[which(people$y == 1), ]
 pred_no <- people[which(people$y == 0), ]
@@ -26,6 +32,7 @@ show_modinfos <- function(model){
 }
 
 new_predict <- function(model, obs=train_data){
+  print("Calculating new predictions ...")
   preds <- predict(model, obs, type="response")
   print("Stats predictions:")
   print(summary(preds))
@@ -52,15 +59,16 @@ print("######## Applying on real test set (unknown y) #########")
 print("## using complete training set ###")
 model <- glm(y ~ ., family = 'binomial', data = train_data)
 show_modinfos(model)
-test_pred <- new_predict(model, obs = test)
+#model$xlevels[["job"]] <- union(model$xlevels[["job"]], levels(test$job))
+test_pred <- new_predict(model, obs = purge_data(test, vars=c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')))
 p1 <- hist(test_pred)
 
-print("##")
-print("## using reduced training set to prevent overfitting ###")
-model <- glm(y ~ ., family = 'binomial', data = train_data_sized)
-show_modinfos(model)
-test_pred <- new_predict(model, obs = test)
-p2 <- hist(test_pred)
+#print("##")
+#print("## using reduced training set to prevent overfitting ###")
+#model <- glm(y ~ ., family = 'binomial', data = train_data_sized)
+#show_modinfos(model)
+#test_pred <- new_predict(model, obs = test)
+#p2 <- hist(test_pred)
 
 plot( p1, col=rgb(0,0,1))  # first histogram
-plot( p2, col=rgb(1,0,0, 0.8), add=T)
+#plot( p2, col=rgb(1,0,0, 0.8), add=T)
