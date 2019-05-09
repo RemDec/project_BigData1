@@ -5,6 +5,12 @@ setwd(this.dir)
 
 library(InformationValue)
 
+write_csv <- function(pred_probas, filename="outputs/output.csv"){
+  with_ind <- cbind(id=seq.int(length(pred_probas)), prob=pred_probas)
+  probas <- as.data.frame(with_ind)
+  write.csv(probas, file=filename, row.names = FALSE)
+}
+
 people <- read.csv(file="../../data/Dtrain.csv", header=TRUE)
 test <- read.csv(file="../../data/Xtest1.csv", header=TRUE)
 
@@ -54,13 +60,13 @@ plot_ROC_curves <- function(y_obs, y_preds){
 
 # Work
 
-
 print("######## Applying on real test set (unknown y) #########")
 print("## using complete training set ###")
 model <- glm(y ~ ., family = 'binomial', data = train_data)
 show_modinfos(model)
 #model$xlevels[["job"]] <- union(model$xlevels[["job"]], levels(test$job))
 test_pred <- new_predict(model, obs = purge_data(test, vars=c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')))
+
 p1 <- hist(test_pred)
 
 #print("##")
@@ -72,3 +78,5 @@ p1 <- hist(test_pred)
 
 plot( p1, col=rgb(0,0,1))  # first histogram
 #plot( p2, col=rgb(1,0,0, 0.8), add=T)
+
+write_csv(test_pred, filename = "outputs/pred_without_unknown.csv")
