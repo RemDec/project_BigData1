@@ -29,6 +29,41 @@ purge_data <- function(data, vars){
   return(restricted[, vars])
 }
 
+simplify_jobs <- function(data, vars){
+  if ('job' %in% vars){
+    replacement <- function(r){
+      if (r['job'] %in% c('blue-collar', 'housemaid', 'services', 'technician', 'unknown'))
+        return('poor')
+      if (r['job'] %in% c('admin.', 'entrepreneur', 'management', 'self-employed', 'unemployed'))
+        return('middle')
+      if (r['job'] %in% c('retired', 'student'))
+        return('good')
+    }
+    data$job <- as.factor(apply(data, 1, replacement))
+  }
+  return(data)
+}
+
+categoric_pdays <- function(data, vars){
+  if ('pdays' %in% vars){
+    replacement <- function(r){
+      if (r['pdays'] == 999)
+        return('never')
+      if (r['pdays'] > 5)
+        return('late')
+      return('recent')
+    }
+    data$pdays <- as.factor(apply(data, 1, replacement))
+  }
+  return(data)
+}
+
+preprocess <- function(data, vars){
+  data <- simplify_jobs(data, vars)
+  data <- categoric_pdays(data, vars)
+  return(data)
+}
+
 # Fitting to model
 show_modinfos <- function(model){
   print(summary(model))
@@ -84,25 +119,29 @@ plot_ROC_curves <- function(y_obs, y_preds){
 # Work
 
 sep_dataset <- function(dataset, prop=5){
-  obs_ok <- dataset[which(dataset$y == 1), ]
-  obs_no <- dataset[which(dataset$y == 0), ]
-  ok_for_valid <- sample(1:nrow(obs_ok), nrow(obs_ok)/prop)
-  no_for_valid <- sample(1:nrow(obs_no), length(ok_for_valid))
+  ind_obs_ok <- which(dataset$y == 1)
+  ind_obs_no <- which(dataset$y == 0)
+  obs_ok <- dataset[ind_obs_ok, ]
+  obs_no <- dataset[ind_obs_no, ]
+  ok_for_valid <- sample(ind_obs_ok, nrow(obs_ok)/prop)
+  no_for_valid <- sample(ind_obs_no, length(ok_for_valid))
   ind_obs_valid <- c(ok_for_valid, no_for_valid)
   print(paste("Dataset separation, obs for validation : ", length(no_for_valid), "with y=0 and", length(ok_for_valid), " y=1"))
-  return(list(train=dataset[-ind_obs_valid, ], validation=dataset[ind_obs_valid, ]))
+  train_data <- dataset[-ind_obs_valid, ]
+  validation_data <- dataset[ind_obs_valid, ]
+  return(list(train=train_data, validation=validation_data))
 }
 
-try_vars <- function(vars, train_set, valid_set, preprocess_fct=purge_data){
+try_vars <- function(vars, train_set, valid_set, preprocess_fct=preprocess){
   infos <- list()
   infos$vars <- vars
-  train_data <- if (is.null(preprocess_fct)) train_set[, c(vars, 'y')] else purge_data(train_set, c(vars, 'y'))
+  train_data <- if (is.null(preprocess_fct)) train_set[, c(vars, 'y')] else preprocess_fct(train_set, c(vars, 'y'))[, c(vars, 'y')]
   model <- glm(y ~ ., family = 'binomial', data = train_data)
   infos$model <- model
   infos$model.anova <- anova(model, test='Chisq')
-  valid_data <- if (is.null(preprocess_fct)) valid_set else purge_data(valid_set, c(vars, 'y'))
+  valid_data <- if (is.null(preprocess_fct)) valid_set else preprocess_fct(valid_set, c(vars, 'y'))
   # Care to prevent auto removed factor level at CV
-  model$xlevels$month <- union(model$xlevels$month, levels(valid_data$month))
+  # model$xlevels$month <- union(model$xlevels$month, levels(valid_data$month))
   
   train_pred <- predict(model, train_data, type="response")
   infos$train_pred <- train_pred
@@ -149,9 +188,11 @@ apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct
   infos <- try_vars(vars, train_set, valid_set, preprocess_fct)
   if (printit)
     print_infos(infos)
+  test_set <- if (is.null(preprocess_fct)) test_set else preprocess_fct(test_set, c(vars, 'y'))
   final_preds <- predict(infos$model, test_set, type="response")
   prop_test_ok <- sum(final_preds > 0.5) / length(final_preds)
-  print("Summary stats of fresh new TEST predictions :")
+  if (printit)
+    print("Summary stats of fresh new TEST predictions :")
   print(summary(final_preds))
   if (plotit){
     h_train <- hist(infos$train_pred)
@@ -169,7 +210,7 @@ apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct
             main="Predictions on Y for different datasets with prop y=1 wrongly predicted")
   }
   if (write_pred_probas)
-    write_csv(preds, filename = "outputs/procedure.csv")
+    write_csv(final_preds, filename = "outputs/procedure.csv")
   return(list(infos=infos, test_preds=final_preds))
 }
 
@@ -229,29 +270,28 @@ generate_CVs <- function(vars, obs_set, nbr_CV=15, nbr_folds_per_CV=10, preproce
   print(paste("Mean of mean AICs =", mean(mean_aics)))
 }
 
-vars = c('age', 'job', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-# sep <- sep_dataset(people)
-# infos <- try_vars(vars, sep$train, sep$validation, preprocess_fct = NULL)
-#results <- apply_procedure(vars, sep$train, sep$validation, test)
+vars_indiv <- c('age', 'job', 'marital', 'housing', 'loan')
+vars_camp <- c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome')
 
-# CV_infos <- apply_CV_procedure(vars, people, nbr_folds = 10)
-# interpret <- interpret_CV_infos(CV_infos)
-generate_CVs(vars, people, nbr_CV = 10, nbr_folds_per_CV = 10)
-# print_infos(infos)
-# best <- find_best(vars, 5, sep$train, sep$validation)
+vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+sep <- sep_dataset(people, prop = 2)
 
-#compute_test(glm(y ~ ., family = 'binomial', data = people[, c(vars, 'y')]))
+results <- apply_procedure(vars, people, sep$validation, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
+print_infos(results$infos)
+print(summary(results$test_preds))
 
-# vars = c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-# 0.2545
+# generate_CVs(vars, people, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
 
-# vars = c('age', 'job', 'marital', 'housing', 'loan', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome')
-# 0.254469
-
-# vars = c('age', 'job', 'marital', 'housing', 'loan', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome', 'edu')
-# 0.254307
-
-# vars = c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome', 'edu')
+# # Good
+# vars = c('age', 'job', 'marital', 'default', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome', 'edu')
+# sep <- sep_dataset(people, prop = 6)
 # 
-# train_data <- purge_data(people, c(vars, 'y'))
+# results <- apply_procedure(vars, sep$train, sep$validation, test, printit = FALSE)
+# print_infos(results$infos)
 
+# # Better
+# vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+# sep <- sep_dataset(people, prop = 6)
+# 
+# results <- apply_procedure(vars, sep$train, sep$validation, test, printit = FALSE)
+# print_infos(results$infos)
