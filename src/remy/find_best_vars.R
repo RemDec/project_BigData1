@@ -13,6 +13,11 @@ write_csv <- function(pred_probas, filename="outputs/output.csv"){
   write.csv(probas, file=filename, row.names = FALSE)
 }
 
+compute_test <- function(model){
+  preds <- predict(model, test, type="response")
+  write_csv(preds, filename = "outputs/adding_cst.csv")
+}
+
 people <- read.csv(file="../../data/Dtrain.csv", header=TRUE)
 test <- read.csv(file="../../data/Xtest1.csv", header=TRUE)
 
@@ -31,9 +36,8 @@ show_modinfos <- function(model){
 }
 
 stepwise_slct <- function(model, both_indep=FALSE, printit=FALSE){
-  if(printit){
+  if(printit)
     print("Stepwise BOTH DIRECTIONS:")
-  }
   step_both <- stepAIC(model, trace = FALSE)
   if(printit)
     print(step_both$anova)
@@ -97,6 +101,8 @@ try_vars <- function(vars, train_set, valid_set, preprocess_fct=purge_data){
   infos$model <- model
   infos$model.anova <- anova(model, test='Chisq')
   valid_data <- if (is.null(preprocess_fct)) valid_set else purge_data(valid_set, c(vars, 'y'))
+  # Care to prevent auto removed factor level at CV
+  model$xlevels$month <- union(model$xlevels$month, levels(valid_data$month))
   
   train_pred <- predict(model, train_data, type="response")
   infos$train_pred <- train_pred
@@ -118,9 +124,7 @@ print_infos <- function(infos){
   print(infos$vars)
   print(summary(infos$model))
   print(infos$model.anova)
-  stepwise <- stepwise_slct(infos$model)
-  print("Stepwise in both dir resulted on :")
-  print(stepwise$both$anova)
+  # try(stepwise <- stepwise_slct(infos$model, printit = TRUE))
 
   print(paste("Predictions on TRAINING give logloss :", infos$train_pred.loss, "and prop y wrongly predicted as 0 :", infos$train_pred.miss_ok))
   print(infos$train_pred.confusion)
@@ -129,23 +133,24 @@ print_infos <- function(infos){
   print(infos$valid_pred.confusion)
 }
 
-find_best <- function(vars, nbr, train_set, valid_set){
-  poss_subsets <- combn(vars, nbr)
-  res <- rep(NA, ncol(poss_subsets))
-  for(i in 1:ncol(poss_subsets)){
-    to_try <- poss_subsets[, i]
-    try_res <- try_vars(c(to_try), train_set, valid_set, preprocess_fct = NULL)
-    conf <- try_res$valid_pred.confusion
-    res[i] <- conf
-  }
-  return(res)
-}
+# find_best <- function(vars, nbr, train_set, valid_set){
+#   poss_subsets <- combn(vars, nbr)
+#   res <- rep(NA, ncol(poss_subsets))
+#   for(i in 1:ncol(poss_subsets)){
+#     to_try <- poss_subsets[, i]
+#     try_res <- try_vars(c(to_try), train_set, valid_set, preprocess_fct = NULL)
+#     conf <- try_res$valid_pred.confusion
+#     res[i] <- conf
+#   }
+#   return(res)
+# }
 
 apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct=NULL, printit=TRUE, plotit=TRUE, write_pred_probas=FALSE){
   infos <- try_vars(vars, train_set, valid_set, preprocess_fct)
   if (printit)
     print_infos(infos)
   final_preds <- predict(infos$model, test_set, type="response")
+  prop_test_ok <- sum(final_preds > 0.5) / length(final_preds)
   print("Summary stats of fresh new TEST predictions :")
   print(summary(final_preds))
   if (plotit){
@@ -155,27 +160,83 @@ apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct
     plot( h_train, col=rgb(0,0,1))
     plot( h_valid, col=rgb(1,0,0))
     plot( h_test, col=rgb(0,1,0))
+    n <- c(paste('Training:', signif(infos$train_pred.miss_ok, 5)),
+           paste('Validation:', signif(infos$valid_pred.miss_ok, 5)),
+           paste('Test: prop > 0.5 =', signif(prop_test_ok, 5)))
     boxplot(infos$train_pred, infos$valid_pred, final_preds,
-            names=c(paste('Training:', signif(infos$train_pred.miss_ok, 5)), paste('Validation:', signif(infos$valid_pred.miss_ok, 5)), 'Test'),
+            names=n,
             horizontal = FALSE, col=c('blue', 'red', 'green'), cex=0.5, pch=20,
             main="Predictions on Y for different datasets with prop y=1 wrongly predicted")
   }
-  if (write_pred_probas){
+  if (write_pred_probas)
     write_csv(preds, filename = "outputs/procedure.csv")
-  }
   return(list(infos=infos, test_preds=final_preds))
 }
 
-compute_test <- function(model){
-  preds <- predict(model, test, type="response")
-  write_csv(preds, filename = "outputs/adding_cst.csv")
+
+apply_CV_procedure <- function(vars, obs_set, nbr_folds=10, preprocess_fct=NULL){
+  folds <- cut(sample(seq(1, nrow(obs_set))), breaks = nbr_folds, labels=FALSE)
+  CV_infos <- list()
+  for(i in 1:nbr_folds){
+    # dividing observations set into training and validation test set
+    test_inds <- which(folds==i, arr.ind=TRUE)
+    test_set <- obs_set[test_inds, ]
+    train_set <- obs_set[-test_inds, ]
+    # applying model (Log. Regr. with glm) and computing measurements on it
+    infos <- try_vars(vars, train_set, test_set, preprocess_fct)
+    CV_infos[[i]] <- infos
+  }
+  return(CV_infos)
 }
 
-vars = c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-sep <- sep_dataset(people)
-infos <- try_vars(vars, sep$train, sep$validation, preprocess_fct = NULL)
-apply_procedure(vars, sep$train, sep$validation, test)
+interpret_CV_infos <- function(CV_infos){
+  folds <- length(CV_infos)
+  losses <- rep(NA, folds)
+  train_misses <- rep(NA, folds)
+  misses <- rep(NA, folds)
+  AICs <- rep(NA, folds)
+  for(i in 1:folds){
+    infos <- CV_infos[[i]]
+    losses[i] <- infos$valid_pred.loss
+    train_misses[i] <- infos$train_pred.miss_ok
+    misses[i] <- infos$valid_pred.miss_ok
+    AICs[i] <- infos$model$aic
+  }
+  return(list(loglosses=losses, train_misses_ok=train_misses, misses_ok=misses, aics=AICs))
+}
 
+generate_CVs <- function(vars, obs_set, nbr_CV=15, nbr_folds_per_CV=10, preprocess_fct=NULL){
+  mean_losses <- rep(NA, nbr_CV)
+  mean_train_misses <- rep(NA, nbr_CV)
+  mean_misses <- rep(NA, nbr_CV)
+  mean_aics <- rep(NA, nbr_CV)
+  for(i in 1:nbr_CV){
+    CV_infos <- apply_CV_procedure(vars, obs_set, nbr_folds_per_CV, preprocess_fct)
+    CV_stats <- interpret_CV_infos(CV_infos)
+    mean_losses[i]  <- mean(CV_stats$loglosses)
+    mean_train_misses[i] <- mean(CV_stats$train_misses_ok) 
+    mean_misses[i] <- mean(CV_stats$misses_ok)
+    mean_aics[i] <- mean(CV_stats$aics)
+  }
+  boxplot(mean_losses, main="Stats on means log losses")
+  boxplot(mean_misses, mean_train_misses, col=c("green", "orange"), names=c("Validation", "Training"),
+          main="Stats on means proportion of y=1 wrongly predicted as 0")
+  boxplot(mean_aics, main="Stats on means AIC of models")
+  print("CrossValidation with variables :")
+  print(vars)
+  print(paste("Mean of mean losses =", mean(mean_losses)))
+  print(paste("Mean of mean misses : for training =", mean(mean_train_misses), ", for validation =", mean(mean_misses)))
+  print(paste("Mean of mean AICs =", mean(mean_aics)))
+}
+
+vars = c('age', 'job', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+# sep <- sep_dataset(people)
+# infos <- try_vars(vars, sep$train, sep$validation, preprocess_fct = NULL)
+#results <- apply_procedure(vars, sep$train, sep$validation, test)
+
+# CV_infos <- apply_CV_procedure(vars, people, nbr_folds = 10)
+# interpret <- interpret_CV_infos(CV_infos)
+generate_CVs(vars, people, nbr_CV = 10, nbr_folds_per_CV = 10)
 # print_infos(infos)
 # best <- find_best(vars, 5, sep$train, sep$validation)
 
@@ -193,13 +254,4 @@ apply_procedure(vars, sep$train, sep$validation, test)
 # vars = c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome', 'edu')
 # 
 # train_data <- purge_data(people, c(vars, 'y'))
-# 
-# print("######## Applying on real test set (unknown y) #########")
-# print("## using complete training set ###")
-# model <- glm(y ~ ., family = 'binomial', data = train_data)
-# show_modinfos(model)
-# 
-# train_pred <- new_predict(model, obs = train_data)
-# cut <- cutoff(train_data$y, train_pred)
-# loss <- show_logloss(train_data$y, train_pred)
-# stepwise <- stepwise_slct(model)$both
+
