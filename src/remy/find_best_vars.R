@@ -30,10 +30,13 @@ show_modinfos <- function(model){
   print(anova(model, test='Chisq'))
 }
 
-stepwise_slct <- function(model, both_indep=FALSE){
-  print("Stepwise BOTH DIRECTIONS:")
+stepwise_slct <- function(model, both_indep=FALSE, printit=FALSE){
+  if(printit){
+    print("Stepwise BOTH DIRECTIONS:")
+  }
   step_both <- stepAIC(model, trace = FALSE)
-  print(step_both$anova)
+  if(printit)
+    print(step_both$anova)
   if(both_indep){
     print("Stepwise FORWARD")
     step_fw <- stepAIC(model, direction="forward", trace = FALSE)
@@ -88,23 +91,42 @@ sep_dataset <- function(dataset, prop=5){
 
 try_vars <- function(vars, train_set, valid_set, preprocess_fct=purge_data){
   infos <- list()
+  infos$vars <- vars
   train_data <- if (is.null(preprocess_fct)) train_set[, c(vars, 'y')] else purge_data(train_set, c(vars, 'y'))
   model <- glm(y ~ ., family = 'binomial', data = train_data)
   infos$model <- model
-  infos$model.anova <- anova(model)
+  infos$model.anova <- anova(model, test='Chisq')
   valid_data <- if (is.null(preprocess_fct)) valid_set else purge_data(valid_set, c(vars, 'y'))
   
   train_pred <- predict(model, train_data, type="response")
   infos$train_pred <- train_pred
   infos$train_pred.confusion <- confusionMatrix(train_data$y, train_pred)
   infos$train_pred.loss <- LogLoss(train_pred, train_data$y)
+  infos$train_pred.miss_ok <- infos$train_pred.confusion[1,2] / sum(infos$train_pred.confusion[, 2])
   
   valid_pred <- predict(model, valid_data, type="response")
   infos$valid_pred <- valid_pred
   infos$valid_pred.confusion <- confusionMatrix(valid_data$y, valid_pred)
   infos$valid_pred.loss <- LogLoss(valid_pred, valid_data$y)
+  infos$valid_pred.miss_ok <- infos$valid_pred.confusion[1,2] / sum(infos$valid_pred.confusion[, 2])
   
   return(infos)
+}
+
+print_infos <- function(infos){
+  print("Model fitting on variables :")
+  print(infos$vars)
+  print(summary(infos$model))
+  print(infos$model.anova)
+  stepwise <- stepwise_slct(infos$model)
+  print("Stepwise in both dir resulted on :")
+  print(stepwise$both$anova)
+
+  print(paste("Predictions on TRAINING give logloss :", infos$train_pred.loss, "and prop y wrongly predicted as 0 :", infos$train_pred.miss_ok))
+  print(infos$train_pred.confusion)
+
+  print(paste("Predictions on VALIDATION give logloss :", infos$valid_pred.loss, "and prop y wrongly predicted as 0 :", infos$valid_pred.miss_ok))
+  print(infos$valid_pred.confusion)
 }
 
 find_best <- function(vars, nbr, train_set, valid_set){
@@ -112,26 +134,52 @@ find_best <- function(vars, nbr, train_set, valid_set){
   res <- rep(NA, ncol(poss_subsets))
   for(i in 1:ncol(poss_subsets)){
     to_try <- poss_subsets[, i]
-    print(to_try)
-    try_res <- try_vars(to_try, train_set, valid_set, preprocess_fct = NULL)
+    try_res <- try_vars(c(to_try), train_set, valid_set, preprocess_fct = NULL)
     conf <- try_res$valid_pred.confusion
-    print(str(conf))
     res[i] <- conf
   }
   return(res)
 }
 
-compute_test <- function(model){
-  preds <- predict(model, test, type="response")
-  write_csv(preds + 0.005, filename = "outputs/adding_cst.csv")
+apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct=NULL, printit=TRUE, plotit=TRUE, write_pred_probas=FALSE){
+  infos <- try_vars(vars, train_set, valid_set, preprocess_fct)
+  if (printit)
+    print_infos(infos)
+  final_preds <- predict(infos$model, test_set, type="response")
+  print("Summary stats of fresh new TEST predictions :")
+  print(summary(final_preds))
+  if (plotit){
+    h_train <- hist(infos$train_pred)
+    h_valid <- hist(infos$valid_pred)
+    h_test <- hist(final_preds)
+    plot( h_train, col=rgb(0,0,1))
+    plot( h_valid, col=rgb(1,0,0))
+    plot( h_test, col=rgb(0,1,0))
+    boxplot(infos$train_pred, infos$valid_pred, final_preds,
+            names=c(paste('Training:', signif(infos$train_pred.miss_ok, 5)), paste('Validation:', signif(infos$valid_pred.miss_ok, 5)), 'Test'),
+            horizontal = FALSE, col=c('blue', 'red', 'green'), cex=0.5, pch=20,
+            main="Predictions on Y for different datasets with prop y=1 wrongly predicted")
+  }
+  if (write_pred_probas){
+    write_csv(preds, filename = "outputs/procedure.csv")
+  }
+  return(list(infos=infos, test_preds=final_preds))
 }
 
-vars = c('age', 'job', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-sep <- sep_dataset(people)
-res <- try_vars(vars, sep$train, sep$validation, preprocess_fct = NULL)
-# best <- find_best(vars, 2, sep$train, sep$validation)
+compute_test <- function(model){
+  preds <- predict(model, test, type="response")
+  write_csv(preds, filename = "outputs/adding_cst.csv")
+}
 
-compute_test(glm(y ~ ., family = 'binomial', data = people[, c(vars, 'y')]))
+vars = c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+sep <- sep_dataset(people)
+infos <- try_vars(vars, sep$train, sep$validation, preprocess_fct = NULL)
+apply_procedure(vars, sep$train, sep$validation, test)
+
+# print_infos(infos)
+# best <- find_best(vars, 5, sep$train, sep$validation)
+
+#compute_test(glm(y ~ ., family = 'binomial', data = people[, c(vars, 'y')]))
 
 # vars = c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
 # 0.2545
