@@ -17,7 +17,8 @@ pred_no <- people[which(people$y == 0), ]
 pred_no_for_train <- sample(1:nrow(pred_no), nrow(pred_no)/3)
 
 train_data <- people
-train_data_sized <- rbind(pred_ok,pred_no[pred_no_for_train, ])
+train_data_sized <- rbind(pred_ok, pred_no[pred_no_for_train, ])
+print(table(train_data_sized$y))
 test_data_sized <- people[-pred_no_for_train, ]
 
 model <- glm(y ~ ., family = 'binomial', data = train_data)
@@ -60,21 +61,18 @@ plot_ROC_curves <- function(y_obs, y_preds){
 
 print("######## Applying on real test set (unknown y) #########")
 print("## using complete training set ###")
-model <- glm(y ~ log(age) + job + marital + contact + month + day_of_week + campaign + pdays + previous, family = 'binomial', data = train_data)
+model <- glm(y ~ age + job + marital + contact + month + day_of_week + campaign + pdays + previous, family = 'binomial', data = train_data)
 show_modinfos(model)
 test_pred <- new_predict(model, obs = test)
 p1 <- hist(test_pred)
 
 print("##")
 print("## using reduced training set to prevent overfitting ###")
-#c('age', 'job', 'marital', 'housing', 'loan', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome', 'edu')
-model <- glm(y ~ age + job + marital + housing + loan + contact + month + day_of_week + campaign + pdays + previous + poutcome + edu, family = 'binomial', data = train_data_sized)
+#c('age', 'job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+model <- glm(y ~ age + job + marital + contact + month + day_of_week + campaign + pdays + previous, family = 'binomial', data = train_data_sized)
 
 
 show_modinfos(model)
-test_pred <- new_predict(model, obs = test)
-p2 <- hist(test_pred)
-
 test_pred_sized <- new_predict(model, obs = test)
 p2 <- hist(test_pred_sized)
 
