@@ -1,0 +1,12 @@
+\frametitle{L'environnement block}
+			
+			De façon plus générale, on peut utiliser \verb+block+ ou
+			\verb+alertblock+.
+			
+			\begin{block}{Titre du block}
+				Ô mon joli block!
+			\end{block}
+			
+			\begin{alertblock}{Titre de mon alertblock}
+				Ô puissant alertblock!
+			\end{alertblock}
