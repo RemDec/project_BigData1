@@ -1,0 +1,109 @@
+\documentclass[]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{fullpage}
+\usepackage{graphicx}
+
+\usepackage[french]{babel}
+
+\usepackage{times}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{color}
+\usepackage{titling}
+\usepackage{subfig}
+
+%-- Logos PDG --
+\pretitle{
+\begin{center}
+
+\begin{figure}[!tbp]
+  \centering
+  \subfloat{\includegraphics[width=0.25\textwidth]{UMons_logo.png}}
+  \hfill
+  \subfloat{\includegraphics[width=0.25\textwidth]{sciences_logo.png}}\\
+\end{figure}
+~\newline
+
+}
+
+\posttitle{\end{center}}
+
+\begin{document}
+
+\title{
+\vspace{1.6cm}
+{\Huge Big Data Analytics I}\\
+\vspace{0.5cm}
+{\Huge Rapport de projet}\\
+}
+\bigskip
+
+
+\author{
+\Large{Sam Boosko}\\
+\Large{Rémy Decocq}\\
+\Large{Dimitri Waelkens}
+}
+
+\date{
+\vspace{9.5cm}
+Année Académique 2018-2019\\
+Master en Sciences Informatiques\\
+Faculté des Sciences, Université de Mons}
+
+\maketitle          
+
+\thispagestyle{empty}   
+
+\newpage
+
+\section{Introduction}
+
+La jeu de données fourni a été construit lors de campagnes marketing menées par un organisme bancaire, sous la forme d'appels téléphoniques vers de potentiels clients. Pour chaque personne sondée, il est renseigné si oui ou non, à la suite de cet appel, elle a souscrit à un dépôt bancaire à long terme dans ladite banque. Le but de la compétition est de prédire si ce sera le cas pour de nouveau client en se basant sur des variables mesurées identiques. Le jeu d'entrainement contient 30436 observations (dont le résultat "a souscrit" est connu et est repris par la variable $y$), tandis ce que le jeu de test (dont le $y$ nous est sciemment pas communiqué) est séparé en deux et contient au total $10182 \times 2 = 20364$ mesures.\\
+
+\par Les données sont des mesures de variables qui sont de deux types : celles relatives au client lui-même (données personnelles) et celles relatives aux potentiels sondages sur le client durant les campagnes. On a donc :\newline
+~\\
+\vspace{0.2cm}
+\textbf{Variables explicatives}\\
+\vspace{0.1cm}
+\indent \texttt{Persos} :
+\begin{itemize}
+\item[$\bullet$] \textit{age}, (type de) \textit{job}, statut civil \textit{marital}, niveau du milieu d'éducation \textit{edu}
+\item[$\bullet$] \textit{default} a une défaillance de crédit, \textit{housing} sous prêt immobilier, \textit{loan} a un prêt personnel
+\end{itemize}
+~\\
+\indent \texttt{Campagnes} :
+\begin{itemize}
+\item[$\bullet$] \textit{contact}, \textit{month}, \textit{day\_of\_week} : type de communication, mois et jour de la semaine du dernier contact
+\item[$\bullet$] \textit{campaign} : nombre de contacts établis durant la campagne correspondant au jeu de données
+\item[$\bullet$] \textit{pdays} : nombre de jours passés depuis le dernier contact d'une campagne précédente
+\item[$\bullet$] \textit{previous} : nombre de contacts déjà établis avant cette campagne
+\item[$\bullet$] \textit{poutcome} : résultat pour ce client suite à la campagne précédente
+\end{itemize}
+
+
+~\\
+\textbf{Variable expliquée}\\
+\indent $\; \bullet$ \textit{y} : le client a ouvert un dépôt à long terme dans l'organisme bancaire
+
+\section{Méthodologie}
+
+\subsection{Analyse des variables et observations}
+
+\subsection{Sélection du type de modèle}
+
+\subsection{Sélection des prédicteurs pertinents}
+
+\subsection{Stabilité du modèle}
+
+\newpage
+
+\section{Résultats et discussion}
+
+\newpage
+
+\section{Conclusion}
+
+
+\end{document}
