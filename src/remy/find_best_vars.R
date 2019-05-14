@@ -64,6 +64,10 @@ preprocess <- function(data, vars){
   return(data)
 }
 
+get_incoherent <- function(){
+  return(which(people$pdays == 999 & people$previous > 0))
+}
+
 # Fitting to model
 show_modinfos <- function(model){
   print(summary(model))
@@ -169,7 +173,7 @@ try_vars <- function(vars, train_set, valid_set, preprocess_fct=preprocess){
   infos$model.anova <- anova(model, test='Chisq')
   valid_data <- if (is.null(preprocess_fct)) valid_set else preprocess_fct(valid_set, c(vars, 'y'))
   # Care to prevent auto removed factor level at CV
-  # model$xlevels$month <- union(model$xlevels$month, levels(valid_data$month))
+  model$xlevels$month <- union(model$xlevels$month, levels(valid_data$month))
   
   train_pred <- predict(model, train_data, type="response")
   infos$train_pred <- train_pred
@@ -200,17 +204,6 @@ print_infos <- function(infos){
   print(infos$valid_pred.confusion)
 }
 
-# find_best <- function(vars, nbr, train_set, valid_set){
-#   poss_subsets <- combn(vars, nbr)
-#   res <- rep(NA, ncol(poss_subsets))
-#   for(i in 1:ncol(poss_subsets)){
-#     to_try <- poss_subsets[, i]
-#     try_res <- try_vars(c(to_try), train_set, valid_set, preprocess_fct = NULL)
-#     conf <- try_res$valid_pred.confusion
-#     res[i] <- conf
-#   }
-#   return(res)
-# }
 
 apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct=NULL, printit=TRUE, plotit=TRUE, write_pred_probas=FALSE){
   infos <- try_vars(vars, train_set, valid_set, preprocess_fct)
@@ -304,15 +297,6 @@ generate_CVs <- function(vars, obs_set, nbr_CV=15, nbr_folds_per_CV=10, preproce
   print(paste("Mean of mean AICs =", mean(mean_aics)))
 }
 
-# simulate_test <- function(vars, data, preprocess_fct=NULL){
-#   test_inds <- sample(1:nrow(data), 10182)
-#   train_data <- data[-test_inds, ]
-#   test_data <- data[test_inds, ]
-#   print("STARTING TEST SIMULATION ON 10182 OBS PICKED IN DATA")
-#   results <- apply_procedure(vars, train_data, test_data, test_data, preprocess_fct, printit = TRUE)
-#   return(results)
-# }
-
 simulate_test <- function(model, nbr_obs=10182, indata=people, preprocess_fct=NULL, use_opt_thresh=FALSE){
   print("------------------------------------------")
   print(paste("SIMULATING TEST picking", nbr_obs, "observations"))
@@ -332,19 +316,27 @@ plot_against_best <- function(new_preds){
   plot(h2, col=rgb(1,0,0, 0.8), add=T)
 }
 
+best_result <- function(preprocess_fct=NULL){
+  vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+  sep <- sep_dataset(people, prop = 10, balance = 5)
+  results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
+  print_infos(results$infos)
+  plot_against_best(results$test_preds)
+  simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = preprocess_fct, use_opt_thresh = FALSE)
+  generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess_fct)
+}
+
 vars_indiv <- c('age', 'job', 'marital', 'housing', 'loan')
 vars_camp <- c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome')
 
 vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
 sep <- sep_dataset(people, prop = 10, balance = 5)
-
-# simulate_test(vars, people, preprocess_fct = preprocess)
-results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
+results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
 print_infos(results$infos)
 
 plot_against_best(results$test_preds)
-simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = NULL, use_opt_thresh = FALSE)
-# generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
+#simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = NULL, use_opt_thresh = FALSE)
+generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
 
 
 # # Best false negative rate 0.90
