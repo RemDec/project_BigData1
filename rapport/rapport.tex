@@ -12,6 +12,8 @@
 \usepackage{color}
 \usepackage{titling}
 \usepackage{subfig}
+\usepackage{chngpage}
+\usepackage{calc}
 
 %-- Logos PDG --
 \pretitle{
@@ -132,14 +134,44 @@ Afin de vérifier la cohérence de notre modèle et estimer l'erreur de test, ai
 \item Calculer une moyenne des erreurs sur les \textit{nbrFolds} itérations, à partir des \textit{nbrCV} moyennes ainsi calculées, afficher leur distribution   
 \end{enumerate}
 
-
-
-
 \newpage
 
 \section{Résultats et discussion}
 
+Ci-dessous le résultat du fitting du modèle de régression logistique en utilisant la combinaison de variables déduites comme les plus explicatives par les procédures de sélection stepwise :
+
+\begin{figure}[!ht]
+   \begin{adjustwidth}{-\oddsidemargin-1in}{-\rightmargin}
+     \centering
+     \includegraphics[width=\paperwidth - 1cm]{callglm}
+   \end{adjustwidth}
+\end{figure}
+\vspace{0.3cm}
+Ce modèle fait l'hypothèse que la relation avec la variable expliquée est linéaire. Pour se faire une idée de ses résultats, on peut calculer les prédictions qu'il fournit sur d'une part les données du training set (dont le résultat sera donc sujet à de l'overfitting) et d'autre part sur le validation set (qui contient donc un nombre équivalent d'observations telles que y=0 et y=1). On en sort les mesures suivantes, avec matrices de confusion (les colonnes étant les vraies valeurs et les lignes les valeurs prédites) :
+
+\begin{figure}[!ht]
+   \begin{adjustwidth}{-\oddsidemargin-1in}{-\rightmargin}
+     \centering
+     \includegraphics[width=\textwidth]{confmat}
+   \end{adjustwidth}
+\end{figure}
+
 \newpage
+
+Cette classification a été effectuée considérant un seuil de 0.5 (au dessus de cette probabilité prédite, y=1). Afin d'expliciter les distributions des probabilités qui sont les prédictions sur différents sets (y compris l'ensemble réel de test hors validation), des boxplots sont utilisés. Comme les faux négatifs semblent visiblement être le point faible du modèle, on en renseigne également la proportion pour chaque set dont on connaît les vraies valeurs de y. Pour le test set, on se contente d'afficher la proportion des prédictions qui mènent à considérer une réponse positive y=1.
+\begin{center}
+\includegraphics[scale=0.35]{pred_distrib}
+\end{center}
+
+
+La procédure de cross-validation va permettre d'estimer l'erreur de test et de mettre en évidence la stabilité du modèle. À chaque fold, on retient 3 mesures : 
+
+\begin{figure}[!ht]
+   \begin{adjustwidth}{-\oddsidemargin-1in}{-\rightmargin}
+     \centering
+     \includegraphics[width=\textwidth + 1cm]{cv}
+   \end{adjustwidth}
+\end{figure}
 
 \section{Conclusion}
 

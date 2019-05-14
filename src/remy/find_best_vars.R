@@ -164,7 +164,7 @@ sep_dataset <- function(dataset, prop=5, balance=0, printit=TRUE){
   return(list(train=train_data, validation=validation_data))
 }
 
-try_vars <- function(vars, train_set, valid_set, preprocess_fct=preprocess){
+try_vars <- function(vars, train_set, valid_set, preprocess_fct=NULL){
   infos <- list()
   infos$vars <- vars
   train_data <- if (is.null(preprocess_fct)) train_set[, c(vars, 'y')] else preprocess_fct(train_set, c(vars, 'y'))[, c(vars, 'y')]
@@ -246,7 +246,7 @@ apply_CV_procedure <- function(vars, obs_set, nbr_folds=5, preprocess_fct=NULL){
     train_set <- obs_set[-test_inds, ]
     # applying model (Log. Regr. with glm) and computing measurements on it
     sep <- sep_dataset(train_set, prop = 10, balance = 5, printit = FALSE)
-    infos <- try_vars(vars, sep$train, rbind(test_set, sep$validation), preprocess_fct)
+    infos <- try_vars(vars, sep$train, test_set, preprocess_fct=preprocess_fct)
     CV_infos[[i]] <- infos
     print(paste("   |_ Applying procedure considering fold", i))
     print(paste("     | Validation logloss=", infos$valid_pred.loss))
@@ -331,12 +331,12 @@ vars_camp <- c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous
 
 vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
 sep <- sep_dataset(people, prop = 10, balance = 5)
-results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
+results <- apply_procedure(vars, sep$train, sep$validation, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
 print_infos(results$infos)
 
-plot_against_best(results$test_preds)
+#plot_against_best(results$test_preds)
 #simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = NULL, use_opt_thresh = FALSE)
-generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
+generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 4, preprocess_fct = preprocess)
 
 
 # # Best false negative rate 0.90
