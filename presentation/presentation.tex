@@ -1,0 +1,129 @@
+% Author : Alexandre Quenon
+% Last update : July 5, 2014
+
+% % % % % % %
+%  Packages %
+% % % % % % %
+
+%---Base packages
+\documentclass[t]{beamer}			% document type
+	% options are:
+		% c or t to place the text at the vertical center or top of the slides
+	% some packages are automatically loaded: 
+		% amsmath, amsthm, amssymb; color, xcolor; hyperref
+\usepackage[utf8]{inputenc}			% encoding
+\usepackage[T1]{fontenc}			% accent
+\usepackage{lmodern}				% latin font
+
+%---Language(s)
+\usepackage[english,frenchb]{babel}	% last language = typography by default
+\addto\captionsfrench{				% to change the french names of...
+	\renewcommand{\tablename}{\textsc{Tableau}}	% (default \textsc{Table})
+}
+
+%---Slide layout
+%------> Browsing bar
+	\setbeamertemplate{navigation symbols}{}	% to remove the browsing bar
+%------> UMONS template
+	\usetheme[navigation,no-subsection,no-totalframenumber]{UMONS}
+	\title{Big Data I - présentation de projet}
+	\subtitle{Construction d'un modèle de prédiction}
+	\author[shortname]{Rémy \textsc{Decocq} \and Sam \textsc{Boosko} \and Dimitri \textsc{Waelkens}}
+	\date{\today}
+	\institute[| shortFac]{%
+	  Faculté des Sciences\\
+	  Université de Mons
+	  \\[4ex]
+	  \includegraphics[height=6ex]{umonsLogos/UMONS-Logo}\hspace{2em}%
+	  \raisebox{-1ex}{\includegraphics[height=8ex]{umonsLogos/FS-Logo}}
+	}
+
+%---Floating objects (images, tables,...)
+\usepackage{float}					% better management of floating objects
+\usepackage{array}					% better management of tables
+\usepackage{graphicx}				% to include external images
+\graphicspath{{Images/}}			% to put images in an 'Images' folder 
+%\usepackage{caption}				% /!\ has priority on "memoir" class
+%\usepackage{subcaption}			% subfigure and subtable environments
+%\usepackage{subfig}				% \subfloat command
+%\usepackage{wrapfig}				% wrapfigure environment
+%\usepackage[update]{epstopdf}		% to use '.eps' files with PDFLaTeX
+
+%---Code including
+%\usepackage{listings}				% general package (can be tuned)
+%\usepackage[framed]{mcode}			% to include Matlab code
+									% /!\ you need the "mcode.sty" file
+
+%---Units from International System
+\usepackage{siunitx}				% \SI{}{} command (units with good typography)
+\DeclareSIUnit\baud{baud}			% definition of the "baud" unit
+\DeclareSIUnit\bit{bit}				% definition of the "bit" unit
+
+%---Drawing
+%\usepackage{tikz}					% useful package for drawing
+%\usepackage[european]{circuitikz} 	% to draw electrical circuits
+
+%---Amsthm
+%\theoremstyle{plain}% default
+%\newtheorem{thm}{Theorem}
+%\newtheorem{lem}[thm]{Lemma}
+%\newtheorem{prop}[thm]{Proposition}
+%\newtheorem*{cor}{Corollary}
+%
+%\theoremstyle{definition}
+%\newtheorem{defn}{Definition}[section]
+%\newtheorem{conj}{Conjecture}[section]
+%\newtheorem{exmp}{Example}[section]
+%
+%\theoremstyle{remark}
+%\newtheorem*{rem}{Remark}
+%\newtheorem*{note}{Note}
+%\newtheorem{case}{Case}
+
+% % % % % % %
+% Document	%
+% % % % % % %
+
+\begin{document}
+% Title page & Outline
+% --------------------
+	\frame[plain]{\titlepage}
+	
+					% to insert the toc at each new section
+	\frame{
+		\frametitle{Sélection du type de modèle}	% Sommaire
+	}
+	
+	\frame{
+	    \frametitle{Analyse et preprocessing du dataset}
+	}
+	
+	\frame{
+	    \frametitle{Sélection des prédicteurs}
+	}
+	
+	\frame{
+	    \frametitle{Résultats du modèle}
+	}
+	
+	\frame{
+	    \frametitle{Cross-Validation de la procédure}
+	}
+	
+	\frame{
+	    \frametitle{Conclusion}
+	}
+
+% Presentation
+% ------------
+	\section{Introduction}
+    
+
+
+
+
+% Title page & slides for possible questions
+% ------------------------------------------
+	\frame[plain]{\titlepage}
+
+\end{document}

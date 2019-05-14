@@ -1,0 +1,2 @@
+\select@language {french}
+\beamer@sectionintoc {1}{Introduction}{8}{0}{1}
