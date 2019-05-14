@@ -70,7 +70,9 @@ show_modinfos <- function(model){
   print(anova(model, test='Chisq'))
 }
 
-stepwise_slct <- function(model, both_indep=FALSE, printit=FALSE){
+stepwise_slct <- function(model, data, both_indep=FALSE, printit=FALSE){
+  model$call$data <- 'data'
+  #model$data <- data
   if(printit)
     print("Stepwise BOTH DIRECTIONS:")
   step_both <- stepAIC(model, trace = FALSE)
@@ -311,13 +313,15 @@ generate_CVs <- function(vars, obs_set, nbr_CV=15, nbr_folds_per_CV=10, preproce
 #   return(results)
 # }
 
-simulate_test <- function(model, nbr_obs=10182, indata=people, preprocess_fct=NULL){
+simulate_test <- function(model, nbr_obs=10182, indata=people, preprocess_fct=NULL, use_opt_thresh=FALSE){
+  print("------------------------------------------")
   print(paste("SIMULATING TEST picking", nbr_obs, "observations"))
   slcted_data <- indata[sample(1:nrow(indata), nbr_obs), ]
   slcted_data <- if (is.null(preprocess_fct)) slcted_data else preprocess_fct(slcted_data, colnames(slcted_data))
   preds <- new_predict(model, slcted_data)
-  cutoff(slcted_data$y, preds)
+  cutoff(slcted_data$y, preds, use_opt_thresh = use_opt_thresh)
   show_logloss(slcted_data$y, preds)
+  plot_ROC_curves(slcted_data$y, preds)
 }
 
 plot_against_best <- function(new_preds){
@@ -335,12 +339,12 @@ vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays
 sep <- sep_dataset(people, prop = 10, balance = 5)
 
 # simulate_test(vars, people, preprocess_fct = preprocess)
-results <- apply_procedure(vars, sep$train, sep$validation, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
+results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
 print_infos(results$infos)
 
 plot_against_best(results$test_preds)
-simulate_test(results$infos$model, preprocess_fct = preprocess)
-generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
+simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = NULL, use_opt_thresh = FALSE)
+# generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
 
 
 # # Best false negative rate 0.90
