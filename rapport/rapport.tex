@@ -163,8 +163,18 @@ Cette classification a été effectuée considérant un seuil de 0.5 (au dessus 
 \includegraphics[scale=0.35]{pred_distrib}
 \end{center}
 
+À noter que ce modèle a été fit et validé sur des ensembles tels que obtenus pars un appel à la procédure \texttt{SepDataSet} avec les paramètres \textit{prop=10} et \textit{balance=5}. Il y a donc dans le training set toutes les observations telles que y=1 n'étant pas dans le validation set et une proportion de $5 \times$ d'observations y=0. Afin de mieux visualiser le lien entre le paramètre \textit{balance} et l'efficacité du modèle vis-à-vis de la LogLoss, des moyennes sont calculées sur plusieurs utilisations de \texttt{SepDataSet} par valeur de balance avec un nombre d'observations du validation set fixé par le paramètre \textit{prop} à 10. On visualise également les distributions des prédictions sur le test set par de tels modèles :
 
-La procédure de cross-validation va permettre d'estimer l'erreur de test et de mettre en évidence la stabilité du modèle. À chaque fold, on retient 3 mesures : l'indicateur AIC du modèle construit, la valeur de la fonction d'erreur LogLoss par rapport à son application sur le test set du fold et la proportion de faux négatifs sur les réponses qui en sortent.
+\begin{figure}[!ht]
+   \begin{adjustwidth}{-\oddsidemargin-1in}{-\rightmargin}
+     \centering
+     \includegraphics[width=\textwidth]{balance_both}
+   \end{adjustwidth}
+\end{figure}
+
+\newpage
+
+La procédure de cross-validation va permettre d'estimer l'erreur de test et de mettre en évidence la stabilité du modèle. À chaque fold, on retient 3 mesures : l'indicateur AIC du modèle construit, la valeur de la fonction d'erreur LogLoss par rapport à son application sur le test set du fold et la proportion de faux négatifs sur les réponses qui en sortent. Il s'agit de moyenne sur 5 runs, l'aspect aléatoire résidant dans la sélection des observations de \texttt{SepDataSet}.
 
 \begin{figure}[!ht]
    \begin{adjustwidth}{-\oddsidemargin-1in}{-\rightmargin}
@@ -175,5 +185,12 @@ La procédure de cross-validation va permettre d'estimer l'erreur de test et de 
 
 \section{Conclusion}
 
+Après avoir appliqué la stepwise selection et déterminé quelles variables semblaient significative dans une hypothèse linéaire, nous avons évalué le modèle sur le training et validation set, et prédit les probabilités sur l'ensemble de test. Le fait que la logloss obtenue sur le validation set soit si élevée est dû à la proportion équivalente d'observation telles que y vaut 1 et 0, et la faible taille de cet ensemble. On a illustré le fait qu'en augmentant la taille du training set avec des observations telles que y=0, la logloss augmente mais la variance de la sortie y diminue, un bon compromis entre les deux étant la valeur 5 pour \textit{balance} (si \textit{prop} est fixé à 10). Selon les résultats des prédictions mises en ligne, procéder à une séparation balancée du dataset de la sorte nous a permis de faire descendre la logloss de 0.55 à 0.52.\\
+
+\par La validation croisée apporte des informations sur la façon dont le modèle se comporte quand il est construit et testé sur différentes parties du jeu de données dont on dispose. Globalement, les résultats sont assez constants et la proportion de faux négatifs reste importante, de l'ordre de 90\%. Finalement, en réappliquant le modèle de régression logistique avec les variables sélectionnées sur un ensemble de training tel que retourné par \texttt{SepDataSet} avec \textit{balance}=5 et \textit{prop}=10, les prédictions ont la forme suivante :
+
+\begin{center}
+\includegraphics[scale=0.45]{preds_test}
+\end{center}
 
 \end{document}
