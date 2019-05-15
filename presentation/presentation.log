@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2018.10.29)  15 MAY 2019 16:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2018.10.29)  15 MAY 2019 21:20
 entering extended mode
 **./presentation.tex
 (presentation.tex
@@ -1450,14 +1450,14 @@ LaTeX Font Warning: Font shape `T1/lmss/m/sc' in size <10> not available
 ] [4
 
 ]
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 180.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10> on input line 180.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 180.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 180.
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 180.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <7> not available
 (Font)              Font shape `T1/lmss/m/sl' tried instead on input line 180.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <5> not available
@@ -1465,7 +1465,7 @@ LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <5> not available
  [5
 
 ]
-<img/a/pastedf.PNG, id=134, 794.2172pt x 469.755pt>
+<img/a/pastedf.PNG, id=135, 794.2172pt x 469.755pt>
 File: img/a/pastedf.PNG Graphic file (type png)
 <use img/a/pastedf.PNG>
 Package pdftex.def Info: img/a/pastedf.PNG  used on input line 188.
@@ -1487,39 +1487,39 @@ Package pdftex.def Info: img/anal1.PNG  used on input line 221.
  [8
 
  <./img/anal1.PNG>]
-<img/predtr.PNG, id=173, 620.3175pt x 48.18pt>
-File: img/predtr.PNG Graphic file (type png)
-<use img/predtr.PNG>
-Package pdftex.def Info: img/predtr.PNG  used on input line 243.
-(pdftex.def)             Requested size: 279.14029pt x 21.68079pt.
-<img/predva.PNG, id=174, 622.57594pt x 48.93282pt>
-File: img/predva.PNG Graphic file (type png)
-<use img/predva.PNG>
-Package pdftex.def Info: img/predva.PNG  used on input line 243.
-(pdftex.def)             Requested size: 280.15659pt x 22.01955pt.
- [9
-
- <./img/predtr.PNG> <./img/predva.PNG>]
-<img/pred_distrib.PNG, id=187, 1039.885pt x 744.7825pt>
-File: img/pred_distrib.PNG Graphic file (type png)
-<use img/pred_distrib.PNG>
-Package pdftex.def Info: img/pred_distrib.PNG  used on input line 250.
-(pdftex.def)             Requested size: 291.16582pt x 208.53767pt.
-
-Overfull \vbox (6.82384pt too high) detected at line 250
- []
-
-[10
-
- <./img/pred_distrib.PNG>]
-<img/balance_both.PNG, id=199, 1397.22pt x 526.96875pt>
+<img/balance_both.PNG, id=173, 1397.22pt x 526.96875pt>
 File: img/balance_both.PNG Graphic file (type png)
 <use img/balance_both.PNG>
-Package pdftex.def Info: img/balance_both.PNG  used on input line 264.
+Package pdftex.def Info: img/balance_both.PNG  used on input line 236.
 (pdftex.def)             Requested size: 335.33966pt x 126.47508pt.
- [11
+ [9
 
  <./img/balance_both.PNG>]
+<img/predtr.PNG, id=185, 620.3175pt x 48.18pt>
+File: img/predtr.PNG Graphic file (type png)
+<use img/predtr.PNG>
+Package pdftex.def Info: img/predtr.PNG  used on input line 257.
+(pdftex.def)             Requested size: 279.14029pt x 21.68079pt.
+<img/predva.PNG, id=186, 622.57594pt x 48.93282pt>
+File: img/predva.PNG Graphic file (type png)
+<use img/predva.PNG>
+Package pdftex.def Info: img/predva.PNG  used on input line 257.
+(pdftex.def)             Requested size: 280.15659pt x 22.01955pt.
+ [10
+
+ <./img/predtr.PNG> <./img/predva.PNG>]
+<img/pred_distrib.PNG, id=200, 1039.885pt x 744.7825pt>
+File: img/pred_distrib.PNG Graphic file (type png)
+<use img/pred_distrib.PNG>
+Package pdftex.def Info: img/pred_distrib.PNG  used on input line 264.
+(pdftex.def)             Requested size: 291.16582pt x 208.53767pt.
+
+Overfull \vbox (6.82384pt too high) detected at line 264
+ []
+
+[11
+
+ <./img/pred_distrib.PNG>]
 <img/cv.PNG, id=212, 943.525pt x 311.1625pt>
 File: img/cv.PNG Graphic file (type png)
 <use img/cv.PNG>
@@ -1557,10 +1557,10 @@ Here is how much of TeX's memory you used:
  56i,15n,70p,821b,778s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/enc/dvips/lm/lm-mat
 hit.enc}{C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/enc/dvips/lm/
-lm-mathex.enc}{C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/enc/dvi
-ps/lm/lm-mathsy.enc}{C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/e
-nc/dvips/lm/lm-rm.enc}{C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts
-/enc/dvips/lm/lm-ec.enc}<C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fon
+lm-mathsy.enc}{C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/enc/dvi
+ps/lm/lm-rm.enc}{C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/enc/d
+vips/lm/lm-ec.enc}{C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/enc
+/dvips/lm/lm-mathex.enc}<C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fon
 ts/type1/public/lm/lmcsc10.pfb><C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 
 2.9/fonts/type1/public/lm/lmex10.pfb><C:/Users/Lroemon/AppData/Local/Programs/M
 iKTeX 2.9/fonts/type1/public/lm/lmmi10.pfb><C:/Users/Lroemon/AppData/Local/Prog
@@ -1572,7 +1572,7 @@ mon/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/lm/lmssbx10.pfb><C:/Us
 ers/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/lm/lmsso10.pfb
 ><C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/lm/lmsy
 10.pfb>
-Output written on presentation.pdf (13 pages, 719734 bytes).
+Output written on presentation.pdf (13 pages, 719787 bytes).
 PDF statistics:
  285 PDF objects out of 1000 (max. 8388607)
  37 named destinations out of 1000 (max. 500000)
