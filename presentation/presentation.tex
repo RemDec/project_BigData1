@@ -126,7 +126,7 @@
 		\framesubtitle{Sélection du type de modèle}
 		\begin{itemize}
 		\item{Au vu des données et de la prédiction recherchée, nous pouvons en déduire qu'il s'agit d'un problème de \textbf{classification}.}
-		\item{2 méthodes de classifications vue au cours testées:
+		\item{2 méthodes de classifications vues au cours testées:
 			\begin{enumerate}
 			\item{\textbf{Logistic Regression}}
 			\item{Linear Discriminant Analysis (LDA)}	
@@ -193,11 +193,13 @@
 		\begin{itemize}
 		\item{Catégorisation des valeurs des variables \textbf{job} et \textbf{pdays}.
 			\begin{itemize}
+			\vspace{0.4cm}
 			\item{\textbf{jobs}:
 			 $poor = \begin{cases}blue-collar \\ housemaid \\ services \\ technician \\ unknown\end{cases}$,
 			 $middle = \begin{cases}admin. \\ entrepreneur \\ management \\ self-employed \\ unemployed\end{cases}$,
 			 $good = \begin{cases}retired \\ student\end{cases}$\\
 			 }
+			 \vspace{0.4cm}
 			\item{\textbf{pdays}: 999 = never, > 5 = late, $\leq$ 5 = recent}
 			\end{itemize}}
 		\end{itemize}
@@ -224,7 +226,7 @@
 	\frame{
 		\frametitle{Résultats du modèle}
 		\begin{itemize}
-		\item{Les résultats ont été obtenus sur des ensembles donnés par \textbf{SepDataSet} avec les paramètres:
+		\item{Les résultats ont été obtenus sur des ensembles donnés par \texttt{SepDataSet(prop\_ok, balance)} avec les paramètres:
 			\begin{itemize}
 			\item{$prop\_ok = 10$}
 			\item{$balance = 5$}
@@ -238,15 +240,15 @@
 	\frame{
 	    \frametitle{Résultats du modèle}
 	    \begin{itemize}
-	    \item{Ce modèle fait l'\textbf{hypothèse} que la \textbf{relation} avec la \textbf{variable} expliquée est \textbf{linéaire}.}
+	    \item{Ce modèle fait l'\textbf{hypothèse} que la \textbf{relation} avec la \textbf{variable} expliquée \textit{y} est \textbf{linéaire}.}
 	    \item{Calcul des prédictions sur:
 			\begin{enumerate}
-			\item{les données du \textbf{training set} où de l'\textbf{overfitting} est observable.
+			\item{les données du \textbf{training set} (sujet à de l'overfitting)
 			\begin{figure}[h!]
   			\includegraphics[scale=0.45]{img/predtr.PNG}
   			\caption{Training Set Confusion Matrix}
 			\end{figure}}
-			\item{les données du validation set.
+			\item{les données du \textbf{validation set}
 			\begin{figure}[h!]
   			\includegraphics[scale=0.45]{img/predva.PNG}
   			\caption{Validation Set Confusion Matrix}
@@ -274,7 +276,7 @@
 			\end{enumerate}}
 	    \end{itemize}
 	    \begin{figure}[h!]
-  			\includegraphics[scale=0.35]{img/cv.PNG}
+  			\includegraphics[scale=0.26]{img/cv2.PNG}
 		\end{figure}
 	}
 	
@@ -284,7 +286,7 @@
 	    \begin{itemize}
 	    \item{Un modèle de \textbf{classification} a été sélectionné, la \textbf{régression logistique}.}
 	    \item{Une procédure, \textbf{paramétrée} avec $prop\_ok = 10$ et $balance = 5$, de \textbf{sélection des observations} a été effectuée afin d'avoir une \textbf{meilleure proportion d'observations} où y = 0 par rapport au nombre d'observations où y = 1. }
-	    \item{Sélection des variables significatives par la méthode \textbf{stepwise selection}}
+	    \item{Sélection des variables significatives par la méthode \textbf{stepwise selection}} (\textit{forward} et \textit{backward})
 	    \item{\textbf{Logloss} de \textbf{0.55 à 0.52} sur le dataset en ligne sur \textbf{kaggle.com} .}
 	    \end{itemize}
 	}

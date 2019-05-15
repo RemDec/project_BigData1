@@ -1,4 +1,4 @@
-\babel@toc {french}{}
+\select@language {french}
 \beamer@sectionintoc {1}{Introduction}{3}{0}{1}
 \beamer@subsectionintoc {1}{1}{Ensemble de donn\IeC {\'e}es}{3}{0}{1}
 \beamer@subsectionintoc {1}{2}{S\IeC {\'e}lection du type de mod\IeC {\`e}le}{4}{0}{1}
