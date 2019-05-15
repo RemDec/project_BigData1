@@ -250,7 +250,8 @@ apply_CV_procedure <- function(vars, obs_set, nbr_folds=5, preprocess_fct=NULL){
     sep <- sep_dataset(train_set, prop = 10, balance = 5, printit = FALSE)
     infos <- try_vars(vars, sep$train, test_set, preprocess_fct=preprocess_fct)
     CV_infos[[i]] <- infos
-    print(paste("   |_ Applying procedure considering fold", i))
+    print(paste("   |_ Applying procedure considering fold", i,
+                "(sizes: train=", nrow(sep$train), ", test=", nrow(test_set), ")"))
     print(paste("     | Validation logloss=", infos$valid_pred.loss))
     print(paste("     | Misspredicted y=1 as 0 :", infos$valid_pred.miss_ok))
   }
@@ -288,7 +289,7 @@ generate_CVs <- function(vars, obs_set, nbr_CV=15, nbr_folds_per_CV=10, preproce
     mean_misses[i] <- mean(CV_stats$misses_ok)
     mean_aics[i] <- mean(CV_stats$aics)
   }
-  boxplot(mean_losses, main="Stats on means log losses")
+  boxplot(mean_losses, main="Stats on means log losses", outline = FALSE)
   boxplot(mean_misses, mean_train_misses, col=c("green", "orange"), names=c("Validation", "Training"),
           main="Stats on means proportion of y=1 wrongly predicted as 0")
   boxplot(mean_aics, main="Stats on means AIC of models")
@@ -318,45 +319,55 @@ plot_against_best <- function(new_preds){
   plot(h2, col=rgb(1,0,0, 0.8), add=T)
 }
 
-plot_logloss_from_balance <- function(vars, range=0:10, prop=10, nbr_model=5, preprocess_fct=NULL){
+plot_logloss_from_balance <- function(vars, range=0:10, prop=10, nbr_model=4, preprocess_fct=NULL){
   mean_logs_valid <- rep(NA, length(range))
   mean_logs_train <- rep(NA, length(range))
+  test_predictions <- list()
   ind <- 1
   for(i in range){
     logs_valid <- rep(NA, nbr_model)
     logs_train <- rep(NA, nbr_model)
     for (mod_inst in 1:nbr_model){
-      sep <- sep_dataset(people, prop = 10, balance = i, printit = FALSE)
+      sep <- sep_dataset(people, prop = prop, balance = i, printit = FALSE)
       results <- apply_procedure(vars, sep$train, sep$validation, test, preprocess_fct=preprocess_fct, printit = FALSE, plotit = FALSE)
       logs_valid[mod_inst] <- results$infos$valid_pred.loss
       logs_train[mod_inst] <- results$infos$train_pred.loss
+      preds <- results$test_preds
+      nbr_obs_valid <- nrow(sep$validation)
     }
     mean_logs_valid[ind] <- mean(logs_valid)
     mean_logs_train[ind] <- mean(logs_train)
+    test_predictions[[ind]] <- preds
     ind <- ind + 1
   }
   maxloss <- max(c(mean_logs_train, mean_logs_valid))
   plot(range, mean_logs_valid, col=rgb(0,1,0), type="o", ylim=c(0.15, maxloss),
-       xlab="Balance parameter value", ylab="Mean logloss value", main="Variation of logloss depending balance parameter value in dataset separation")
+       xlab="Balance parameter value", ylab="Mean logloss value", 
+       main=paste("Logloss variation considering set separation balance (", nbr_obs_valid,"obs in val. set)"))
   lines(range, mean_logs_train, col=rgb(1,0,0), type="o", ylim=c(0.15, maxloss))
+  legend(x="top", legend = c("validation", "training"), col = c("green", "red"), cex=0.8, lty=1:2)
+  boxplot(test_predictions, cex=0.5, pch=20,
+          main="Predictions distributions for test set considering balance param.", names = paste("Bal=", range))
 }
 
 
 best_result <- function(preprocess_fct=NULL){
   vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
   sep <- sep_dataset(people, prop = 10, balance = 5)
-  results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=preprocess_fct, printit = FALSE, write_pred_probas = TRUE, filename="outputs/best_preds.csv")
+  results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=preprocess_fct, printit = FALSE, write_pred_probas = TRUE, filename="outputs/new_best_preds.csv")
   print_infos(results$infos)
   plot_against_best(results$test_preds)
   simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = preprocess_fct, use_opt_thresh = FALSE)
   generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess_fct)
+  hist(results$test_preds, col="green", breaks = 40,
+       main="Model : test predictions probabilities", xlab="Predicted probability values")
 }
 
 vars_indiv <- c('age', 'job', 'marital', 'housing', 'loan')
 vars_camp <- c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome')
 
 vars = c('age', 'job', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-sep <- sep_dataset(people, prop = 10, balance = 4)
+sep <- sep_dataset(people, prop = 10, balance = 6)
 results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
 print_infos(results$infos)
 
