@@ -1,2 +1,1 @@
 \babel@toc {french}{}
-\beamer@sectionintoc {1}{Introduction}{11}{0}{1}

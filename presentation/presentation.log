@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2018.10.29)  14 MAY 2019 18:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2018.10.29)  15 MAY 2019 15:21
 entering extended mode
 **./presentation.tex
 (presentation.tex
@@ -1425,12 +1425,12 @@ File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 LaTeX Font Warning: Font shape `T1/lmss/m/sc' in size <10.95> not available
 (Font)              Font shape `T1/lmr/m/sc' tried instead on input line 90.
 
-<umonsLogos/UMONS-Logo.jpg, id=18, 346.1733pt x 124.3044pt>
+<umonsLogos/UMONS-Logo.jpg, id=13, 346.1733pt x 124.3044pt>
 File: umonsLogos/UMONS-Logo.jpg Graphic file (type jpg)
 <use umonsLogos/UMONS-Logo.jpg>
 Package pdftex.def Info: umonsLogos/UMONS-Logo.jpg  used on input line 90.
 (pdftex.def)             Requested size: 59.40858pt x 21.33298pt.
-<umonsLogos/FS-Logo.jpg, id=19, 517.935pt x 265.2309pt>
+<umonsLogos/FS-Logo.jpg, id=14, 517.935pt x 265.2309pt>
 File: umonsLogos/FS-Logo.jpg Graphic file (type jpg)
 <use umonsLogos/FS-Logo.jpg>
 Package pdftex.def Info: umonsLogos/FS-Logo.jpg  used on input line 90.
@@ -1463,7 +1463,7 @@ LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <5> not available
  [4
 
 ]
-<img/a/pastedf.PNG, id=57, 794.2172pt x 469.755pt>
+<img/a/pastedf.PNG, id=48, 794.2172pt x 469.755pt>
 File: img/a/pastedf.PNG Graphic file (type png)
 <use img/a/pastedf.PNG>
 Package pdftex.def Info: img/a/pastedf.PNG  used on input line 179.
@@ -1477,29 +1477,47 @@ Overfull \vbox (12.27687pt too high) detected at line 179
  <./img/a/pastedf.PNG>] [6
 
 ]
-<img/anal1.PNG, id=76, 386.19281pt x 172.39406pt>
+<img/anal1.PNG, id=65, 386.19281pt x 172.39406pt>
 File: img/anal1.PNG Graphic file (type png)
 <use img/anal1.PNG>
 Package pdftex.def Info: img/anal1.PNG  used on input line 211.
 (pdftex.def)             Requested size: 270.33311pt x 120.675pt.
  [7
 
- <./img/anal1.PNG>] [8
+ <./img/anal1.PNG>]
+<img/predtr.PNG, id=74, 620.3175pt x 48.18pt>
+File: img/predtr.PNG Graphic file (type png)
+<use img/predtr.PNG>
+Package pdftex.def Info: img/predtr.PNG  used on input line 232.
+(pdftex.def)             Requested size: 279.14029pt x 21.68079pt.
+<img/predva.PNG, id=75, 622.57594pt x 48.93282pt>
+File: img/predva.PNG Graphic file (type png)
+<use img/predva.PNG>
+Package pdftex.def Info: img/predva.PNG  used on input line 232.
+(pdftex.def)             Requested size: 280.15659pt x 22.01955pt.
+ [8
 
-] [9
+ <./img/predtr.PNG> <./img/predva.PNG>]
+<img/pred_distrib.PNG, id=84, 1039.885pt x 744.7825pt>
+File: img/pred_distrib.PNG Graphic file (type png)
+<use img/pred_distrib.PNG>
+Package pdftex.def Info: img/pred_distrib.PNG  used on input line 239.
+(pdftex.def)             Requested size: 291.16582pt x 208.53767pt.
 
-] [10
+Overfull \vbox (6.82384pt too high) detected at line 239
+ []
 
-]
-File: umonsLogos/UMONS-Logo.jpg Graphic file (type jpg)
-<use umonsLogos/UMONS-Logo.jpg>
-Package pdftex.def Info: umonsLogos/UMONS-Logo.jpg  used on input line 235.
-(pdftex.def)             Requested size: 59.40858pt x 21.33298pt.
-File: umonsLogos/FS-Logo.jpg Graphic file (type jpg)
-<use umonsLogos/FS-Logo.jpg>
-Package pdftex.def Info: umonsLogos/FS-Logo.jpg  used on input line 235.
-(pdftex.def)             Requested size: 55.54257pt x 28.44397pt.
- [11
+[9
+
+ <./img/pred_distrib.PNG>]
+<img/cv.PNG, id=91, 943.525pt x 311.1625pt>
+File: img/cv.PNG Graphic file (type png)
+<use img/cv.PNG>
+Package pdftex.def Info: img/cv.PNG  used on input line 253.
+(pdftex.def)             Requested size: 330.2387pt x 108.90851pt.
+ [10
+
+ <./img/cv.PNG>] [11
 
 ]
 \tf@nav=\write6
@@ -1511,20 +1529,19 @@ Package pdftex.def Info: umonsLogos/FS-Logo.jpg  used on input line 235.
 \tf@snm=\write8
 \openout8 = `presentation.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 237.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 237.
-
-(presentation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 237.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 237.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 270.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 270.
+ (presentation.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 270.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 270.
 Package rerunfilecheck Info: File `presentation.out' has not changed.
-(rerunfilecheck)             Checksum: CC3E76BBBB7AEBE26F150AC99DAF45FB;48.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 30537 strings out of 492970
- 611251 string characters out of 3125705
- 642974 words of memory out of 3000000
- 33879 multiletter control sequences out of 15000+200000
+ 30550 strings out of 492970
+ 611541 string characters out of 3125705
+ 642970 words of memory out of 3000000
+ 33889 multiletter control sequences out of 15000+200000
  611524 words of font info for 83 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,15n,70p,821b,778s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -1545,9 +1562,9 @@ mon/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/lm/lmssbx10.pfb><C:/Us
 ers/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/lm/lmsso10.pfb
 ><C:/Users/Lroemon/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/lm/lmsy
 10.pfb>
-Output written on presentation.pdf (11 pages, 596456 bytes).
+Output written on presentation.pdf (11 pages, 673050 bytes).
 PDF statistics:
- 156 PDF objects out of 1000 (max. 8388607)
- 24 named destinations out of 1000 (max. 500000)
- 71 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 149 PDF objects out of 1000 (max. 8388607)
+ 23 named destinations out of 1000 (max. 500000)
+ 83 words of extra memory for PDF output out of 10000 (max. 10000000)
 

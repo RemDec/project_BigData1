@@ -212,11 +212,44 @@
 	
 	\frame{
 	    \frametitle{Résultats du modèle}
-	    
+	    \begin{itemize}
+	    \item{Ce modèle fait l'hypothèse que la relation avec la variable expliquée est linéaire.}
+	    \item{Calcul des prédictions sur:
+			\begin{enumerate}
+			\item{les données du training set où de l'overfitting est observable.
+			\begin{figure}[h!]
+  			\includegraphics[scale=0.45]{img/predtr.PNG}
+  			\caption{Training Set Confusion Matrix}
+			\end{figure}}
+			\item{les données du validation set.
+			\begin{figure}[h!]
+  			\includegraphics[scale=0.45]{img/predva.PNG}
+  			\caption{Validation Set Confusion Matrix}
+			\end{figure}}
+			\end{enumerate}}
+	    \item{Cette classification a été effectuée considérant un seuil de 0.5 .}
+	    \end{itemize}
 	}
 	
 	\frame{
+		\frametitle{Résultats du modèle}
+		\begin{figure}
+		\includegraphics[scale=0.28]{img/pred_distrib.PNG}
+		\end{figure}			
+	}	
+	
+	\frame{
 	    \frametitle{Cross-Validation de la procédure}
+	    \begin{itemize}
+	    \item{La procédure de cross-validation va permettre:
+			\begin{enumerate}
+			\item{d'estimer l'erreur de test.}
+			\item{de mettre en évidence la stabilité du modèle.}			
+			\end{enumerate}}
+	    \end{itemize}
+	    \begin{figure}[h!]
+  			\includegraphics[scale=0.35]{img/cv.PNG}
+		\end{figure}
 	}
 	
 	\frame{
@@ -233,6 +266,5 @@
 
 % Title page & slides for possible questions
 % ------------------------------------------
-	\frame[plain]{\titlepage}
 
 \end{document}
