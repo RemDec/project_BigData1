@@ -89,9 +89,16 @@
 % --------------------
 	\frame[plain]{\titlepage}
 	
-					% to insert the toc at each new section
 	\frame{
-		\frametitle{Sélection du type de modèle}	% Sommaire
+		\tableofcontents
+	}
+					% to insert the toc at each new section
+% Presentation
+% ------------
+	\section{Introduction}
+	\subsection{Ensemble de données}
+	\frame{
+		\frametitle{Introduction}	% Sommaire
 		\framesubtitle{Ensemble de données}
 		\begin{itemize}
 		\item{Les données se présentent sous la forme d'un tableau contenant des informations relatives à un individu. \\
@@ -99,7 +106,7 @@
 		\begin{figure}[h!]
 			\begin{tabular}{|c|c|c|c|c|c|}
 			\hline
-			& Age & job & marital & ... & y\\
+			& \textbf{Age} & \textbf{job} & \textbf{marital} & \textbf{...} & \textbf{y}\\
 			\hline
 			1		& 56  & housemaid 	& married 	& ... & 0\\
 			2		& 57  & services 	& married 	& ... & 0\\
@@ -113,21 +120,23 @@
 		\item{Où la variable y vaut 1 si cet indivi a ouvert un compte en banque, 0 sinon.}
 		\end{itemize}
 	}
-	
+	\subsection{Sélection du type de modèle}
 	\frame{
-		\frametitle{Sélection du type de modèle}
+		\frametitle{Introduction}
+		\framesubtitle{Sélection du type de modèle}
 		\begin{itemize}
-		\item{Au vu des données et de la prédiction recherchée, nous pouvons en déduire qu'il s'agit d'un problème de classification.}
+		\item{Au vu des données et de la prédiction recherchée, nous pouvons en déduire qu'il s'agit d'un problème de \textbf{classification}.}
 		\item{2 méthodes de classifications vue au cours testées:
 			\begin{enumerate}
-			\item{Logistic Regression}
+			\item{\textbf{Logistic Regression}}
 			\item{Linear Discriminant Analysis (LDA)}	
 			\end{enumerate}}
-		\item{LDA est plus stable quand les prédicteurs suivent une distribution gaussienne. Or, les données n'ont pas cette distribution.}
-		\item{Donnant de meilleurs résultats, la régression logistique a été retenue.}
+		\item{\textbf{LDA} est plus \textbf{stable} quand les prédicteurs suivent une \textbf{distribution gaussienne}. Or, les données n'ont pas cette distribution.}
+		\item{Donnant de \textbf{meilleurs résultats}, la \textbf{régression logistique} a été retenue.}
 		\end{itemize}			
 	}	
-	
+	\section{Analyse et preprocessing du dataset}
+	\subsection{Analyse du dataset}
 	\frame{
 	    \frametitle{Analyse et preprocessing du dataset}
 		\framesubtitle{Analyse du dataset}
@@ -169,7 +178,7 @@
 			\end{minipage}
 		\end{figure}
 	}
-	
+	\subsection{Preprocessing du dataset}
 	\frame{
 	    \frametitle{Analyse et preprocessing du dataset}
 		\framesubtitle{Sélection des observations pour le training et la validation}
@@ -193,15 +202,16 @@
 			\end{itemize}}
 		\end{itemize}
 	}	
-	
+	\subsection{Sélection des prédicteurs}
 	\frame{
-	    \frametitle{Sélection des prédicteurs}
+		\frametitle{Analyse et preprocessing du dataset}
+	    \framesubtitle{Sélection des prédicteurs}
 	    \begin{itemize}
-	    \item{Analyse de la signification des variables.
+	    \item{Analyse de la signification des variables avec \textbf{stepwise selection}.
 	    	\begin{figure}[h!]
   			\includegraphics[scale=0.7]{img/anal1.PNG}
 			\end{figure}}
-		\item{3 variables ne sont pas significatives:
+		\item{3 \textbf{variables} ne sont pas \textbf{significatives}:
 		\begin{enumerate}
 		\item default
 		\item loan
@@ -210,13 +220,14 @@
 		\end{itemize}
 	}
 	
+	\section{Résultats du modèle}
 	\frame{
 	    \frametitle{Résultats du modèle}
 	    \begin{itemize}
-	    \item{Ce modèle fait l'hypothèse que la relation avec la variable expliquée est linéaire.}
+	    \item{Ce modèle fait l'\textbf{hypothèse} que la \textbf{relation} avec la \textbf{variable} expliquée est \textbf{linéaire}.}
 	    \item{Calcul des prédictions sur:
 			\begin{enumerate}
-			\item{les données du training set où de l'overfitting est observable.
+			\item{les données du \textbf{training set} où de l'\textbf{overfitting} est observable.
 			\begin{figure}[h!]
   			\includegraphics[scale=0.45]{img/predtr.PNG}
   			\caption{Training Set Confusion Matrix}
@@ -227,7 +238,7 @@
   			\caption{Validation Set Confusion Matrix}
 			\end{figure}}
 			\end{enumerate}}
-	    \item{Cette classification a été effectuée considérant un seuil de 0.5 .}
+	    \item{Cette \textbf{classification} a été effectuée considérant un \textbf{seuil} de \textbf{0.5} .}
 	    \end{itemize}
 	}
 	
@@ -238,6 +249,21 @@
 		\end{figure}			
 	}	
 	
+	\frame{
+		\frametitle{Résultats du modèle}
+		\begin{itemize}
+		\item{Les résultats ont été obtenus sur des ensembles donnés par \textbf{SepDataSet} avec les paramètres:
+			\begin{itemize}
+			\item{$prop\_ok = 10$}
+			\item{$balance = 5$}
+			\end{itemize}}
+		\end{itemize}
+		\begin{figure}
+		\includegraphics[scale=0.24]{img/balance_both.PNG}
+		\end{figure}
+	}	
+	
+	\section{Cross-Validation de la procédure}
 	\frame{
 	    \frametitle{Cross-Validation de la procédure}
 	    \begin{itemize}
@@ -252,19 +278,15 @@
 		\end{figure}
 	}
 	
+	\section{Conclusion}
 	\frame{
 	    \frametitle{Conclusion}
+	    \begin{itemize}
+	    \item{Un modèle de \textbf{classification} a été sélectionné, la \textbf{régression logistique}.}
+	    \item{Une procédure, \textbf{paramétrée} avec $prop\_ok = 10$ et $balance = 5$, de \textbf{sélection des observations} a été effectuée afin d'avoir une \textbf{meilleure proportion d'observations} où y = 0 par rapport au nombre d'observations où y = 1. }
+	    \item{Sélection des variables significatives par la méthode \textbf{stepwise selection}}
+	    \item{\textbf{Logloss} de \textbf{0.55 à 0.52} sur le dataset en ligne sur \textbf{kaggle.com} .}
+	    \end{itemize}
 	}
-
-% Presentation
-% ------------
-	\section{Introduction}
-    
-
-
-
-
-% Title page & slides for possible questions
-% ------------------------------------------
 
 \end{document}
