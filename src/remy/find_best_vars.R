@@ -340,7 +340,7 @@ print_infos(results$infos)
 
 plot_against_best(results$test_preds)
 simulate_test(results$infos$model, preprocess_fct = preprocess)
-generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
+#generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess)
 
 
 # # Best false negative rate 0.90

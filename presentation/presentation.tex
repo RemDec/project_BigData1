@@ -29,7 +29,7 @@
 	\title{Big Data I - présentation de projet}
 	\subtitle{Construction d'un modèle de prédiction}
 	\author[shortname]{Rémy \textsc{Decocq} \and Sam \textsc{Boosko} \and Dimitri \textsc{Waelkens}}
-	\date{\today}
+	\date{20 mai 2019}
 	\institute[| shortFac]{%
 	  Faculté des Sciences\\
 	  Université de Mons
@@ -92,18 +92,127 @@
 					% to insert the toc at each new section
 	\frame{
 		\frametitle{Sélection du type de modèle}	% Sommaire
+		\framesubtitle{Ensemble de données}
+		\begin{itemize}
+		\item{Les données se présentent sous la forme d'un tableau contenant des informations relatives à un individu. \\
+		
+		\begin{figure}[h!]
+			\begin{tabular}{|c|c|c|c|c|c|}
+			\hline
+			& Age & job & marital & ... & y\\
+			\hline
+			1		& 56  & housemaid 	& married 	& ... & 0\\
+			2		& 57  & services 	& married 	& ... & 0\\
+			3		& 37  & services 	& married 	& ... & 0\\
+			... 	& ... & ... 		& ... 		& ... & ...\\
+			30436 	& 61  & retired 	& married  	& ... & 0\\
+			\hline
+			\end{tabular}
+			\caption{Dataset Dtrain.csv}
+		\end{figure}}
+		\item{Où la variable y vaut 1 si cet indivi a ouvert un compte en banque, 0 sinon.}
+		\end{itemize}
+	}
+	
+	\frame{
+		\frametitle{Sélection du type de modèle}
+		\begin{itemize}
+		\item{Au vu des données et de la prédiction recherchée, nous pouvons en déduire qu'il s'agit d'un problème de classification.}
+		\item{2 méthodes de classifications vue au cours testées:
+			\begin{enumerate}
+			\item{Logistic Regression}
+			\item{Linear Discriminant Analysis (LDA)}	
+			\end{enumerate}}
+		\item{LDA est plus stable quand les prédicteurs suivent une distribution gaussienne. Or, les données n'ont pas cette distribution.}
+		\item{Donnant de meilleurs résultats, la régression logistique a été retenue.}
+		\end{itemize}			
+	}	
+	
+	\frame{
+	    \frametitle{Analyse et preprocessing du dataset}
+		\framesubtitle{Analyse du dataset}
+		\begin{itemize}
+		\item{L'analyse des données montre:
+			\begin{enumerate}
+				 \item{seulement \textbf{3} observations de \textbf{default} valent \textbf{yes} sur \textbf{30436}.}
+				 \item{le nombre de \textbf{1} n'est pas proportionnel nombre de \textbf{0}}
+				 \item{il y a \textbf{1316} observations où
+				 	\[
+				 		pdays = 999 \land previous \geq 1
+				 	\]
+				 	dont \textbf{108} se rapportent à \textbf{y = 1}}
+			\end{enumerate}}
+		\end{itemize}
+		
+		\begin{figure}[h!]
+			\begin{minipage}[c]{.46\linewidth}
+				\begin{figure}[h!]\begin{tabular}{|c|c|c|}
+				\hline
+				\textbf{yes} & \textbf{no} & \textbf{unknown}\\
+				\hline
+				3 & 7532 & 22901\\
+				\hline
+				\end{tabular}
+				\caption{table of people\$default}
+				\end{figure}
+			\end{minipage} \hfill
+			\begin{minipage}[c]{.46\linewidth}
+				\begin{figure}[h!]\begin{tabular}{|c|c|c|}
+				\hline
+				\textbf{1} & \textbf{0} & \textbf{total}\\
+				\hline
+				2342 & 28094 & 30436\\
+				\hline
+				\end{tabular}
+				\caption{table of people\$y}
+				\end{figure}
+			\end{minipage}
+		\end{figure}
 	}
 	
 	\frame{
 	    \frametitle{Analyse et preprocessing du dataset}
-	}
+		\framesubtitle{Sélection des observations pour le training et la validation}
+	    \begin{figure}[h!]
+  		\includegraphics[scale=0.43]{img/a/pastedf.PNG}
+		\end{figure}
+	}	
+	
+	\frame{
+		\frametitle{Analyse et preprocessing du dataset}
+		\framesubtitle{Preprocessing du dataset}
+		\begin{itemize}
+		\item{Catégorisation des valeurs des variables \textbf{job} et \textbf{pdays}.
+			\begin{itemize}
+			\item{\textbf{jobs}:
+			 $poor = \begin{cases}blue-collar \\ housemaid \\ services \\ technician \\ unknown\end{cases}$,
+			 $middle = \begin{cases}admin. \\ entrepreneur \\ management \\ self-employed \\ unemployed\end{cases}$,
+			 $good = \begin{cases}retired \\ student\end{cases}$\\
+			 }
+			\item{\textbf{pdays}: 999 = never, > 5 = late, $\leq$ 5 = recent}
+			\end{itemize}}
+		\end{itemize}
+	}	
 	
 	\frame{
 	    \frametitle{Sélection des prédicteurs}
+	    \begin{itemize}
+	    \item{Analyse de la signification des variables.
+	    	\begin{figure}[h!]
+  			\includegraphics[scale=0.7]{img/anal1.PNG}
+			\end{figure}}
+		\item{3 variables ne sont pas significatives:
+		\begin{enumerate}
+		\item default
+		\item loan
+		\item housing
+		\end{enumerate}}
+		\end{itemize}
 	}
 	
 	\frame{
 	    \frametitle{Résultats du modèle}
+	    
 	}
 	
 	\frame{
