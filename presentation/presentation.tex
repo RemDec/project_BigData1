@@ -117,7 +117,7 @@
 			\end{tabular}
 			\caption{Dataset Dtrain.csv}
 		\end{figure}}
-		\item{Où la variable y vaut 1 si cet indivi a ouvert un compte en banque, 0 sinon.}
+		\item{Où la variable y vaut $\begin{cases} 1 \text{ si cet individu a ouvert un compte en banque} \\0 \text{ sinon}\end{cases}$}
 		\end{itemize}
 	}
 	\subsection{Sélection du type de modèle}
@@ -143,7 +143,7 @@
 		\begin{itemize}
 		\item{L'analyse des données montre:
 			\begin{enumerate}
-				 \item{seulement \textbf{3} observations de \textbf{default} valent \textbf{yes} sur \textbf{30436}.}
+				 \item{seulement \textbf{3} observations de \textbf{default} valent \textit{yes} sur \textbf{30436}.}
 				 \item{le nombre de \textbf{1} n'est pas proportionnel au nombre de \textbf{0}}
 				 \item{il y a \textbf{1316} observations où
 				 	\[
@@ -222,6 +222,20 @@
 	
 	\section{Résultats du modèle}
 	\frame{
+		\frametitle{Résultats du modèle}
+		\begin{itemize}
+		\item{Les résultats ont été obtenus sur des ensembles donnés par \textbf{SepDataSet} avec les paramètres:
+			\begin{itemize}
+			\item{$prop\_ok = 10$}
+			\item{$balance = 5$}
+			\end{itemize}}
+		\end{itemize}
+		\begin{figure}
+		\includegraphics[scale=0.24]{img/balance_both.PNG}
+		\end{figure}
+	}	
+	
+	\frame{
 	    \frametitle{Résultats du modèle}
 	    \begin{itemize}
 	    \item{Ce modèle fait l'\textbf{hypothèse} que la \textbf{relation} avec la \textbf{variable} expliquée est \textbf{linéaire}.}
@@ -247,21 +261,7 @@
 		\begin{figure}
 		\includegraphics[scale=0.28]{img/pred_distrib.PNG}
 		\end{figure}			
-	}	
-	
-	\frame{
-		\frametitle{Résultats du modèle}
-		\begin{itemize}
-		\item{Les résultats ont été obtenus sur des ensembles donnés par \textbf{SepDataSet} avec les paramètres:
-			\begin{itemize}
-			\item{$prop\_ok = 10$}
-			\item{$balance = 5$}
-			\end{itemize}}
-		\end{itemize}
-		\begin{figure}
-		\includegraphics[scale=0.24]{img/balance_both.PNG}
-		\end{figure}
-	}	
+	}		
 	
 	\section{Cross-Validation de la procédure}
 	\frame{
