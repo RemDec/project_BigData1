@@ -164,7 +164,7 @@ Cette classification a été effectuée considérant un seuil de 0.5 (au dessus 
 \end{center}
 
 
-La procédure de cross-validation va permettre d'estimer l'erreur de test et de mettre en évidence la stabilité du modèle. À chaque fold, on retient 3 mesures : 
+La procédure de cross-validation va permettre d'estimer l'erreur de test et de mettre en évidence la stabilité du modèle. À chaque fold, on retient 3 mesures : l'indicateur AIC du modèle construit, la valeur de la fonction d'erreur LogLoss par rapport à son application sur le test set du fold et la proportion de faux négatifs sur les réponses qui en sortent.
 
 \begin{figure}[!ht]
    \begin{adjustwidth}{-\oddsidemargin-1in}{-\rightmargin}

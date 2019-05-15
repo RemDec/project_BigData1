@@ -173,7 +173,7 @@ try_vars <- function(vars, train_set, valid_set, preprocess_fct=NULL){
   infos$model.anova <- anova(model, test='Chisq')
   valid_data <- if (is.null(preprocess_fct)) valid_set else preprocess_fct(valid_set, c(vars, 'y'))
   # Care to prevent auto removed factor level at CV
-  model$xlevels$month <- union(model$xlevels$month, levels(valid_data$month))
+  model$xlevels$month <- union(model$xlevels$month, c(levels(valid_data$month), levels(train_data$month)) )
   
   train_pred <- predict(model, train_data, type="response")
   infos$train_pred <- train_pred
@@ -205,16 +205,18 @@ print_infos <- function(infos){
 }
 
 
-apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct=NULL, printit=TRUE, plotit=TRUE, write_pred_probas=FALSE){
+apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct=NULL, printit=TRUE, plotit=TRUE, write_pred_probas=FALSE, filename='outputs/last_predictions.csv'){
   infos <- try_vars(vars, train_set, valid_set, preprocess_fct)
   if (printit)
     print_infos(infos)
   test_set <- if (is.null(preprocess_fct)) test_set else preprocess_fct(test_set, c(vars, 'y'))
+  infos$model$xlevels$month <- union(infos$model$xlevels$month, levels(test_set$month))
   final_preds <- predict(infos$model, test_set, type="response")
   prop_test_ok <- sum(final_preds > 0.5) / length(final_preds)
-  if (printit)
+  if (printit){
     print("Summary stats of fresh new TEST predictions :")
-  print(summary(final_preds))
+    print(summary(final_preds))
+  }
   if (plotit){
     h_train <- hist(infos$train_pred)
     h_valid <- hist(infos$valid_pred)
@@ -231,7 +233,7 @@ apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct
             main="Predictions on Y for different datasets with prop y=1 wrongly predicted")
   }
   if (write_pred_probas)
-    write_csv(final_preds, filename = "outputs/procedure.csv")
+    write_csv(final_preds, filename = filename)
   return(list(infos=infos, test_preds=final_preds))
 }
 
@@ -316,10 +318,34 @@ plot_against_best <- function(new_preds){
   plot(h2, col=rgb(1,0,0, 0.8), add=T)
 }
 
+plot_logloss_from_balance <- function(vars, range=0:10, prop=10, nbr_model=5, preprocess_fct=NULL){
+  mean_logs_valid <- rep(NA, length(range))
+  mean_logs_train <- rep(NA, length(range))
+  ind <- 1
+  for(i in range){
+    logs_valid <- rep(NA, nbr_model)
+    logs_train <- rep(NA, nbr_model)
+    for (mod_inst in 1:nbr_model){
+      sep <- sep_dataset(people, prop = 10, balance = i, printit = FALSE)
+      results <- apply_procedure(vars, sep$train, sep$validation, test, preprocess_fct=preprocess_fct, printit = FALSE, plotit = FALSE)
+      logs_valid[mod_inst] <- results$infos$valid_pred.loss
+      logs_train[mod_inst] <- results$infos$train_pred.loss
+    }
+    mean_logs_valid[ind] <- mean(logs_valid)
+    mean_logs_train[ind] <- mean(logs_train)
+    ind <- ind + 1
+  }
+  maxloss <- max(c(mean_logs_train, mean_logs_valid))
+  plot(range, mean_logs_valid, col=rgb(0,1,0), type="o", ylim=c(0.15, maxloss),
+       xlab="Balance parameter value", ylab="Mean logloss value", main="Variation of logloss depending balance parameter value in dataset separation")
+  lines(range, mean_logs_train, col=rgb(1,0,0), type="o", ylim=c(0.15, maxloss))
+}
+
+
 best_result <- function(preprocess_fct=NULL){
   vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
   sep <- sep_dataset(people, prop = 10, balance = 5)
-  results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
+  results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=preprocess_fct, printit = FALSE, write_pred_probas = TRUE, filename="outputs/best_preds.csv")
   print_infos(results$infos)
   plot_against_best(results$test_preds)
   simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = preprocess_fct, use_opt_thresh = FALSE)
@@ -329,14 +355,14 @@ best_result <- function(preprocess_fct=NULL){
 vars_indiv <- c('age', 'job', 'marital', 'housing', 'loan')
 vars_camp <- c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome')
 
-vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-sep <- sep_dataset(people, prop = 10, balance = 5)
-results <- apply_procedure(vars, sep$train, sep$validation, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
+vars = c('age', 'job', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+sep <- sep_dataset(people, prop = 10, balance = 4)
+results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
 print_infos(results$infos)
 
 #plot_against_best(results$test_preds)
 #simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = NULL, use_opt_thresh = FALSE)
-generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 4, preprocess_fct = preprocess)
+#generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 4, preprocess_fct = preprocess)
 
 
 # # Best false negative rate 0.90
