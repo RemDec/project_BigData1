@@ -218,9 +218,9 @@ apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct
     print(summary(final_preds))
   }
   if (plotit){
-    h_train <- hist(infos$train_pred)
-    h_valid <- hist(infos$valid_pred)
-    h_test <- hist(final_preds)
+    h_train <- hist(infos$train_pred, breaks = 40)
+    h_valid <- hist(infos$valid_pred, breaks = 40)
+    h_test <- hist(final_preds, breaks = 40)
     plot( h_train, col=rgb(0,0,1))
     plot( h_valid, col=rgb(1,0,0))
     plot( h_test, col=rgb(0,1,0))
@@ -358,7 +358,7 @@ best_result <- function(preprocess_fct=NULL){
   print_infos(results$infos)
   plot_against_best(results$test_preds)
   simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = preprocess_fct, use_opt_thresh = FALSE)
-  generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 5, preprocess_fct = preprocess_fct)
+  generate_CVs(vars, people, nbr_CV = 10, nbr_folds_per_CV = 10, preprocess_fct = preprocess_fct)
   hist(results$test_preds, col="green", breaks = 40,
        main="Model : test predictions probabilities", xlab="Predicted probability values")
 }
@@ -366,14 +366,16 @@ best_result <- function(preprocess_fct=NULL){
 vars_indiv <- c('age', 'job', 'marital', 'housing', 'loan')
 vars_camp <- c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome')
 
-vars = c('age', 'job', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-sep <- sep_dataset(people, prop = 10, balance = 6)
-results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
+vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
+sep <- sep_dataset(people, prop = 10, balance = 5)
+results <- apply_procedure(vars, sep$train, sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
 print_infos(results$infos)
 
 plot_against_best(results$test_preds)
 simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = NULL, use_opt_thresh = FALSE)
-generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 4, preprocess_fct = preprocess)
+hist(results$test_preds, col="green", breaks = 40,
+     main="Model : test predictions probabilities", xlab="Predicted probability values")
+#generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 4, preprocess_fct = preprocess)
 
 
 # # Best false negative rate 0.90
