@@ -7,6 +7,11 @@ library(InformationValue)
 library(MLmetrics)
 library(MASS)
 
+people <- read.csv(file="../../data/Dtrain.csv", header=TRUE)
+test <- read.csv(file="../../data/Xtest1.csv", header=TRUE)
+
+
+# --- Utils ---
 write_csv <- function(pred_probas, filename="outputs/output.csv"){
   with_ind <- cbind(id=seq.int(length(pred_probas)), prob=pred_probas)
   probas <- as.data.frame(with_ind)
@@ -18,11 +23,10 @@ compute_test <- function(model){
   write_csv(preds, filename = "outputs/adding_cst.csv")
 }
 
-people <- read.csv(file="../../data/Dtrain.csv", header=TRUE)
-test <- read.csv(file="../../data/Xtest1.csv", header=TRUE)
 
-# Pre processing
+# --- Pre processing ---
 purge_data <- function(data, vars){
+  # Try to consider only 'sure' informations to fit model and see which predictors are significative (unused finally)
   data$default <- NULL 
   contain_unknown <- apply(data, 1, function(r) any(r == "unknown"))
   restricted <- droplevels(data[!contain_unknown, ])
@@ -30,6 +34,7 @@ purge_data <- function(data, vars){
 }
 
 simplify_jobs <- function(data, vars){
+  # Agregating categorical job values considering the coefficients sign in a Log Regr model
   if ('job' %in% vars){
     replacement <- function(r){
       if (r['job'] %in% c('blue-collar', 'housemaid', 'services', 'technician', 'unknown'))
@@ -45,6 +50,7 @@ simplify_jobs <- function(data, vars){
 }
 
 categoric_pdays <- function(data, vars){
+  # Transformating of discutable numeric var pdays into a categorical one, better sense at semantic level
   if ('pdays' %in% vars){
     replacement <- function(r){
       if (r['pdays'] == 999)
@@ -59,75 +65,22 @@ categoric_pdays <- function(data, vars){
 }
 
 preprocess <- function(data, vars){
+  # Apply preprocesses functions one dataset
   data <- simplify_jobs(data, vars)
   data <- categoric_pdays(data, vars)
   return(data)
 }
 
 get_incoherent <- function(){
+  # Incoherent obs. considering pdays and previous var semantic
   return(which(people$pdays == 999 & people$previous > 0))
 }
 
-# Fitting to model
-show_modinfos <- function(model){
-  print(summary(model))
-  print(anova(model, test='Chisq'))
-}
-
-stepwise_slct <- function(model, data, both_indep=FALSE, printit=FALSE){
-  model$call$data <- 'data'
-  #model$data <- data
-  if(printit)
-    print("Stepwise BOTH DIRECTIONS:")
-  step_both <- stepAIC(model, trace = FALSE)
-  if(printit)
-    print(step_both$anova)
-  if(both_indep){
-    print("Stepwise FORWARD")
-    step_fw <- stepAIC(model, direction="forward", trace = FALSE)
-    print(step_fw$anova)
-    print("Stepwise BACKWARD")
-    step_bw <- stepAIC(model, direction="backward", trace = FALSE)
-    print(step_bw$anova)
-    return(list(both=step_both, forward=step_fw, backward=step_bw))
-  }
-  return(list(both=step_both))
-}
-
-# Predictions 
-new_predict <- function(model, obs=train_data){
-  print("Calculating new predictions ...")
-  preds <- predict(model, obs, type="response")
-  print("Stats on new predictions:")
-  print(summary(preds))
-  return(preds)
-}
-
-cutoff <- function(y_obs, y_preds, use_opt_thresh=FALSE){
-  opt <- if (use_opt_thresh) optimalCutoff(y_obs, y_preds)[1] else 0.5
-  missed <- misClassError(y_obs, y_preds, threshold = opt)
-  print(paste("Calculated/given threshold = ", opt, " that gives a missclass prop of ", missed))
-  print("Confusion matrix with col=actual obs and row=predicted")
-  conf <- confusionMatrix(y_obs, y_preds, threshold = opt)
-  missed_ok <- conf[1,2] / sum(conf[, 2])
-  print(paste("Proportion of y missclassed as 0 =", missed_ok))
-  print(conf)
-  return(opt)
-}
-
-show_logloss <- function(y_actual, y_pred_prob, txt_for="model"){
-  loss <- LogLoss(y_pred_prob, y_actual)
-  print(paste("Log loss for ", txt_for, " = ", loss))
-  return(loss)
-}
-
-plot_ROC_curves <- function(y_obs, y_preds){
-  plotROC(y_obs, y_preds)
-}
-
-# Work
-
 sep_dataset <- function(dataset, prop=5, balance=0, printit=TRUE){
+  # Separate dataset into training and validation sets, regarding the observation proportion with y=1. Validation set is composed
+  # from size(y=1 in dataset)/prop observations with y=1 and an equivalent number of obs. with y=0 (so 50/50 y value distributed).
+  # Training set is creating taking all y=1 observations remaining and a proportion of y=0 equals to size(y=1 in remaining)*balance.
+  # The bigger balance value is, the unproportionned the training set is (because number of y=0 increases in regards of y=1).
   ind_obs_ok <- which(dataset$y == 1)
   ind_obs_no <- which(dataset$y == 0)
   obs_ok <- dataset[ind_obs_ok, ]
@@ -164,7 +117,76 @@ sep_dataset <- function(dataset, prop=5, balance=0, printit=TRUE){
   return(list(train=train_data, validation=validation_data))
 }
 
+
+# --- Fitting to model and model analysis ---
+new_predict <- function(model, obs=train_data){
+  # Compute model predictions on a dataset and print stats
+  print("Calculating new predictions ...")
+  preds <- predict(model, obs, type="response")
+  print("Stats on new predictions:")
+  print(summary(preds))
+  return(preds)
+}
+
+show_modinfos <- function(model){
+  # Get significative predictors 
+  print(summary(model))
+  print(anova(model, test='Chisq'))
+}
+
+stepwise_slct <- function(model, data, both_indep=FALSE, printit=FALSE){
+  # Apply stepwise based on AIC indicator
+  model$call$data <- 'data'
+  if(printit)
+    print("Stepwise BOTH DIRECTIONS:")
+  step_both <- stepAIC(model, trace = FALSE)
+  if(printit)
+    print(step_both$anova)
+  if(both_indep){
+    print("Stepwise FORWARD")
+    step_fw <- stepAIC(model, direction="forward", trace = FALSE)
+    print(step_fw$anova)
+    print("Stepwise BACKWARD")
+    step_bw <- stepAIC(model, direction="backward", trace = FALSE)
+    print(step_bw$anova)
+    return(list(both=step_both, forward=step_fw, backward=step_bw))
+  }
+  return(list(both=step_both))
+}
+
+
+# --- Predictions analysis ---
+cutoff <- function(y_obs, y_preds, use_opt_thresh=FALSE){
+  # Compute confusion matrix and missclass stats with a given or autocalculated threshold
+  opt <- if (use_opt_thresh) optimalCutoff(y_obs, y_preds)[1] else 0.5
+  missed <- misClassError(y_obs, y_preds, threshold = opt)
+  print(paste("Calculated/given threshold = ", opt, " that gives a missclass prop of ", missed))
+  print("Confusion matrix with col=actual obs and row=predicted")
+  conf <- confusionMatrix(y_obs, y_preds, threshold = opt)
+  missed_ok <- conf[1,2] / sum(conf[, 2])
+  print(paste("Proportion of y missclassed as 0 =", missed_ok))
+  print(conf)
+  return(opt)
+}
+
+show_logloss <- function(y_actual, y_pred_prob, txt_for="model"){
+  # Compute logloss
+  loss <- LogLoss(y_pred_prob, y_actual)
+  print(paste("Log loss for ", txt_for, " = ", loss))
+  return(loss)
+}
+
+plot_ROC_curves <- function(y_obs, y_preds){
+  plotROC(y_obs, y_preds)
+}
+
+# --- Applying Log. Regr. model and compute stats on train/valid/test results --- 
+
 try_vars <- function(vars, train_set, valid_set, preprocess_fct=NULL){
+  # Fit a simple model y~. considering predictors in vars and the given training set
+  # Apply it on training and validation set provided and compute stats in both cases
+  # Before each introduction in the model, data is treated with given preprocess function
+  # Returns a list with several interesting statistical values to evaluate the model quality
   infos <- list()
   infos$vars <- vars
   train_data <- if (is.null(preprocess_fct)) train_set[, c(vars, 'y')] else preprocess_fct(train_set, c(vars, 'y'))[, c(vars, 'y')]
@@ -186,17 +208,16 @@ try_vars <- function(vars, train_set, valid_set, preprocess_fct=NULL){
   infos$valid_pred.confusion <- confusionMatrix(valid_data$y, valid_pred)
   infos$valid_pred.loss <- LogLoss(valid_pred, valid_data$y)
   infos$valid_pred.miss_ok <- infos$valid_pred.confusion[1,2] / sum(infos$valid_pred.confusion[, 2])
-  
   return(infos)
 }
 
 print_infos <- function(infos){
+  # Pretty printing for list returned by try_vars()
   print("Model fitting on variables :")
   print(infos$vars)
   print(summary(infos$model))
   print(infos$model.anova)
-  # try(stepwise <- stepwise_slct(infos$model, printit = TRUE))
-
+  
   print(paste("Predictions on TRAINING give logloss :", infos$train_pred.loss, "and prop y wrongly predicted as 0 :", infos$train_pred.miss_ok))
   print(infos$train_pred.confusion)
 
@@ -206,6 +227,8 @@ print_infos <- function(infos){
 
 
 apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct=NULL, printit=TRUE, plotit=TRUE, write_pred_probas=FALSE, filename='outputs/last_predictions.csv'){
+  # Compute model on training set, validate it on validation set, predict y on test set, plot all results in several graphes/boxplots and 
+  # write predicted probabilities in a well-formated file 
   infos <- try_vars(vars, train_set, valid_set, preprocess_fct)
   if (printit)
     print_infos(infos)
@@ -238,7 +261,11 @@ apply_procedure <- function(vars, train_set, valid_set, test_set, preprocess_fct
 }
 
 
+# --- Model validation and comparison ---
 apply_CV_procedure <- function(vars, obs_set, nbr_folds=5, preprocess_fct=NULL){
+  # Cross-validate the model considering predictors vars and formula y ~ . (so all terms in vars). Each time, model is
+  # trained on a subset of observations as returned by sep_dataset({obs. in the k-1 other folds}) and tested on the current fold
+  # Returns a list of stats results as returned by try_vars() for the k folding considered 
   folds <- cut(sample(seq(1, nrow(obs_set))), breaks = nbr_folds, labels=FALSE)
   CV_infos <- list()
   for(i in 1:nbr_folds){
@@ -259,6 +286,7 @@ apply_CV_procedure <- function(vars, obs_set, nbr_folds=5, preprocess_fct=NULL){
 }
 
 interpret_CV_infos <- function(CV_infos){
+  # Keep interesting values to cross-validate from a call to apply_CV_procedure()
   folds <- length(CV_infos)
   losses <- rep(NA, folds)
   train_misses <- rep(NA, folds)
@@ -275,6 +303,8 @@ interpret_CV_infos <- function(CV_infos){
 }
 
 generate_CVs <- function(vars, obs_set, nbr_CV=15, nbr_folds_per_CV=10, preprocess_fct=NULL){
+  # Launch nbr_CV times cross validation procedure and compute means on it to display global trend and avoid
+  # random aspect from sep_dataset()
   mean_losses <- rep(NA, nbr_CV)
   mean_train_misses <- rep(NA, nbr_CV)
   mean_misses <- rep(NA, nbr_CV)
@@ -301,6 +331,7 @@ generate_CVs <- function(vars, obs_set, nbr_CV=15, nbr_folds_per_CV=10, preproce
 }
 
 simulate_test <- function(model, nbr_obs=10182, indata=people, preprocess_fct=NULL, use_opt_thresh=FALSE){
+  # Pick a number of obs in dataset and apply a model on it, computing interesting values from it to detect anomalies
   print("------------------------------------------")
   print(paste("SIMULATING TEST picking", nbr_obs, "observations"))
   slcted_data <- indata[sample(1:nrow(indata), nbr_obs), ]
@@ -312,14 +343,19 @@ simulate_test <- function(model, nbr_obs=10182, indata=people, preprocess_fct=NU
 }
 
 plot_against_best <- function(new_preds){
+  # Hist of predictions compared to which gave best results on Kaggle
   h1 <- hist(new_preds)
-  best <- read.csv(file="../../data/best_entry.csv", header=TRUE)
+  best <- read.csv(file="../../data/best_preds.csv", header=TRUE)
   h2 <- hist(best[, 'prob'])
-  plot(h1, col=rgb(0,0,1))  # first histogram
+  plot(h1, col=rgb(0,0,1), xlab = "New predictions ditr. blue against best red")  # first histogram
   plot(h2, col=rgb(1,0,0, 0.8), add=T)
 }
 
 plot_logloss_from_balance <- function(vars, range=0:10, prop=10, nbr_model=4, preprocess_fct=NULL){
+  # Analysis of how vary our model estimated error rate depending on balance parameter value increasing (parameter of sep_dataset()).
+  # The higher balance value, the bigger will be the proportion of y=0 in training set. If the model is fit on a training set with
+  # a very unbalanced number of y=0 than y=1, it will more likely overfit on y=0 observations and being bad to predict an observation as y=1,
+  # increasing logloss function value on a brand new set containing a lot of y=1 (like validation set returned by sep_dataset() where y prop. is 50/50).
   mean_logs_valid <- rep(NA, length(range))
   mean_logs_train <- rep(NA, length(range))
   test_predictions <- list()
@@ -351,7 +387,9 @@ plot_logloss_from_balance <- function(vars, range=0:10, prop=10, nbr_model=4, pr
 }
 
 
+# --- Work ---
 best_result <- function(preprocess_fct=NULL){
+  # Model that gives best score on Kaggle, apply measurements functions on it
   vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
   sep <- sep_dataset(people, prop = 10, balance = 5)
   results <- apply_procedure(vars, rbind(sep$train, sep$validation), sep$validation, test, preprocess_fct=preprocess_fct, printit = FALSE, write_pred_probas = TRUE, filename="outputs/new_best_preds.csv")
@@ -363,54 +401,4 @@ best_result <- function(preprocess_fct=NULL){
        main="Model : test predictions probabilities", xlab="Predicted probability values")
 }
 
-vars_indiv <- c('age', 'job', 'marital', 'housing', 'loan')
-vars_camp <- c('contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome')
-
-vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-sep <- sep_dataset(people, prop = 10, balance = 5)
-results <- apply_procedure(vars, sep$train, sep$validation, test, preprocess_fct=NULL, printit = FALSE, write_pred_probas = TRUE)
-print_infos(results$infos)
-
-plot_against_best(results$test_preds)
-simulate_test(results$infos$model, nbr_obs = nrow(people), preprocess_fct = NULL, use_opt_thresh = FALSE)
-hist(results$test_preds, col="green", breaks = 40,
-     main="Model : test predictions probabilities", xlab="Predicted probability values")
-#generate_CVs(vars, people, nbr_CV = 5, nbr_folds_per_CV = 4, preprocess_fct = preprocess)
-
-
-# # Best false negative rate 0.90
-#
-# vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-# sep <- sep_dataset(people, prop = 10, balance = 5)
-# results <- apply_procedure(vars, sep$train, people, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
-# print_infos(results$infos)
-# print(summary(results$test_preds))
-# 
-# plot_against_best(results$test_preds)
-
-
-
-# # Versus Best
-# vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-# sep <- sep_dataset(people, prop = 5)
-# 
-# # simulate_test(vars, people, preprocess_fct = preprocess)
-# results <- apply_procedure(vars, people, sep$validation, test, preprocess_fct=preprocess, printit = FALSE, write_pred_probas = TRUE)
-# print_infos(results$infos)
-# print(summary(results$test_preds))
-# 
-# plot_against_best(results$test_preds)
-
-# # Good
-# vars = c('age', 'job', 'marital', 'default', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous', 'poutcome', 'edu')
-# sep <- sep_dataset(people, prop = 6)
-# 
-# results <- apply_procedure(vars, sep$train, sep$validation, test, printit = FALSE)
-# print_infos(results$infos)
-
-# # Better
-# vars = c('job', 'marital', 'contact', 'month', 'day_of_week', 'campaign', 'pdays', 'previous')
-# sep <- sep_dataset(people, prop = 6)
-# 
-# results <- apply_procedure(vars, sep$train, sep$validation, test, printit = FALSE)
-# print_infos(results$infos)
+best_result()

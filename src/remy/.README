@@ -1,0 +1,8 @@
+Le code fait la supposition qu'il existe un dossier ../../data où les fichiers de données suivants sont présents :
+    - Dtrain.csv (training set)
+    - Xtest1.csv (test set)
+
+Pour la fonction plot_against_best(), on fait également l'hypothèse que le fichier de prédictions
+ ayant donné le meilleur score y est présent sous le nom de best_preds.csv
+Cette méthode est juste utile pour la visualisation, ses appels peuvent être commentés. Les
+ chemins pour les données sont à modifier au début du code si nécessaire.  
